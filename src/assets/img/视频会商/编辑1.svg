@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 59.1 (86144) - https://sketch.com -->
+    <title>编辑1</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <filter x="-75.0%" y="-75.0%" width="250.0%" height="250.0%" filterUnits="objectBoundingBox" id="filter-1">
+            <feOffset dx="0" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1" result="shadowMatrixOuter1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+        </filter>
+    </defs>
+    <g id="图标库" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="VDCP" transform="translate(-236.000000, -288.000000)" fill-rule="nonzero">
+            <g id="视频会议" transform="translate(15.000000, 5.000000)">
+                <g id="会场列表" transform="translate(15.000000, 255.000000)">
+                    <g id="编辑1" filter="url(#filter-1)" transform="translate(210.000000, 30.000000)">
+                        <rect id="矩形" fill-opacity="0" fill="#000000" opacity="0" x="0" y="0" width="16" height="16"></rect>
+                        <path d="M15.7850083,1.66052272 C15.498314,1.37387346 15.0335116,1.37387346 14.7468558,1.66052272 L7.47987613,8.92637779 C7.19318176,9.21299035 7.19318176,9.67772015 7.47987613,9.96436939 C7.76653379,10.250982 8.23133613,10.250982 8.51799197,9.96436939 L15.7850065,2.69851432 C16.0716642,2.41186506 16.0716642,1.94713526 15.7850083,1.66052272 Z M13.0929153,9.45451487 C12.6912173,9.45451487 12.3655351,9.78011087 12.3655351,10.181782 L12.3655351,13.8181386 C12.3655351,14.2198116 12.0398895,14.5454057 11.6381548,14.5454057 L2.18214057,14.5454057 C1.78040584,14.5454057 1.45476033,14.2198097 1.45476033,13.8181386 L1.45476033,2.18180149 C1.45476033,1.78016519 1.78040584,1.45453434 2.18214057,1.45453434 L9.45597796,1.45453434 C9.85771268,1.45453434 10.1833582,1.12893833 10.1833582,0.727267186 C10.1833582,0.32563089 9.85771268,1.86517468e-14 9.45597796,1.86517468e-14 L1.45476049,1.86517468e-14 C0.651327714,1.86517468e-14 -5.10702591e-15,0.651226874 -5.10702591e-15,1.45453615 L-5.10702591e-15,14.5454272 C-5.10702591e-15,15.3487346 0.651327732,16 1.45476049,16 L12.3655349,16 C13.1690044,16 13.8202954,15.3487364 13.8202954,14.5454272 L13.8202954,10.1817823 C13.8202954,9.78011087 13.49465,9.45451487 13.0929153,9.45451487 Z" id="形状" fill="#FFFFFF"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

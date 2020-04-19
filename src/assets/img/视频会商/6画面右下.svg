@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="13px" viewBox="0 0 16 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 59.1 (86144) - https://sketch.com -->
+    <title>6画面右下</title>
+    <desc>Created with Sketch.</desc>
+    <g id="图标库" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="VDCP" transform="translate(-539.000000, -328.000000)">
+            <g id="视频会议" transform="translate(15.000000, 5.000000)">
+                <g id="6画面右下" transform="translate(524.000000, 322.000000)">
+                    <rect id="矩形" fill="#000000" fill-rule="nonzero" opacity="0" x="0" y="0" width="16" height="16"></rect>
+                    <path d="M10.6666667,1 L9.6,1 L5.33333333,1 L4.26666667,1 L0,1 L0,5 L0,6 L0,9 L0,10 L0,14 L9.6,14 L10.6666667,14 L16,14 L16,1 L10.6666667,1 Z M5,6 L5,9 L1,9 L1,6 L5,6 Z M5,2 L5,5 L1,5 L1,2 L5,2 Z M15,2 L15,5 L11,5 L11,2 L15,2 Z M6,2 L10,2 L10,5 L6,5 L6,2 Z M1,10 L5,10 L5,13 L1,13 L1,10 Z" id="形状" fill="#98C4FB" fill-rule="nonzero"></path>
+                    <rect id="矩形" fill="#1A67CB" x="6" y="6" width="9" height="7"></rect>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

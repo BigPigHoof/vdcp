@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="43px" height="20px" viewBox="0 0 43 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 59.1 (86144) - https://sketch.com -->
+    <title>移动-向上</title>
+    <desc>Created with Sketch.</desc>
+    <g id="图标库" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="VDCP" transform="translate(-1189.000000, -259.000000)">
+            <g id="首页" transform="translate(473.000000, 95.000000)">
+                <g id="移动-向上" transform="translate(714.000000, 151.000000)">
+                    <rect id="矩形" fill="#000000" opacity="0" x="0" y="0" width="48" height="48"></rect>
+                    <polygon id="路径" fill="#0AA5F1" fill-rule="nonzero" transform="translate(23.669351, 23.000000) rotate(-90.000000) translate(-23.669351, -23.000000) " points="28.15625 23 14 5.43325931 15.7458736 2 33.3387014 23 15.7458736 44 14 41.2750562"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

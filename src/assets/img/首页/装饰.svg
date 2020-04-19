@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1966px" height="74px" viewBox="0 0 1966 74" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 59.1 (86144) - https://sketch.com -->
+    <title>装饰</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <filter x="-0.2%" y="-6.6%" width="100.3%" height="113.1%" filterUnits="objectBoundingBox" id="filter-1">
+            <feGaussianBlur stdDeviation="1" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="85.9496215%" id="linearGradient-2">
+            <stop stop-color="#F68835" stop-opacity="0.721590909" offset="0%"></stop>
+            <stop stop-color="#FF701D" stop-opacity="0" offset="100%"></stop>
+        </linearGradient>
+        <path d="M11,72 L617.266187,13.991992 C660.263789,8.57791124 692.707434,10.5115115 714.597122,19.7927928 C747.431655,33.7147147 781.438849,36.035035 828.345324,36.035035 C989,36.035035 989,36.035035 1149.65468,36.035035 C1196.56115,36.035035 1230.56835,33.7147147 1263.40288,19.7927928 C1285.29257,10.5115115 1317.73621,8.57791124 1360.73381,13.991992 L1967,72" id="path-3"></path>
+        <filter x="-0.3%" y="-10.7%" width="100.6%" height="121.3%" filterUnits="objectBoundingBox" id="filter-4">
+            <feGaussianBlur stdDeviation="2" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-0.4%" y="-13.9%" width="100.8%" height="127.9%" filterUnits="objectBoundingBox" id="filter-5">
+            <feGaussianBlur stdDeviation="1.5" in="SourceAlpha" result="shadowBlurInner1"></feGaussianBlur>
+            <feOffset dx="0" dy="1" in="shadowBlurInner1" result="shadowOffsetInner1"></feOffset>
+            <feComposite in="shadowOffsetInner1" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowInnerInner1"></feComposite>
+            <feColorMatrix values="0 0 0 0 0.980392157   0 0 0 0 0.392156863   0 0 0 0 0  0 0 0 1 0" type="matrix" in="shadowInnerInner1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="图标库" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="装饰" transform="translate(-6.000000, -3.000000)">
+            <rect id="矩形" stroke="#979797" fill="#000000" opacity="0" x="0.5" y="0.5" width="1966" height="71"></rect>
+            <path d="M11,67 L617.266187,8.99199199 C660.263789,3.57791124 692.707434,5.51151151 714.597122,14.7927928 C747.431655,28.7147147 781.438849,31.035035 828.345324,31.035035 C989,31.035035 989,31.035035 1149.65468,31.035035 C1196.56115,31.035035 1230.56835,28.7147147 1263.40288,14.7927928 C1285.29257,5.51151151 1317.73621,3.57791124 1360.73381,8.99199199 L1967,67" id="路径-2" stroke="#BE6E1F" stroke-width="2" filter="url(#filter-1)"></path>
+            <g id="路径-2备份" opacity="0.587262835" filter="url(#filter-4)">
+                <use fill="url(#linearGradient-2)" fill-rule="evenodd" xlink:href="#path-3"></use>
+                <use fill="black" fill-opacity="1" filter="url(#filter-5)" xlink:href="#path-3"></use>
+                <use stroke="#BE6E1F" stroke-width="1" xlink:href="#path-3"></use>
+            </g>
+        </g>
+    </g>
+</svg>

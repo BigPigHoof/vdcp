@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1869px" height="54px" viewBox="0 0 1869 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 59.1 (86144) - https://sketch.com -->
+    <title>标题背景</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="120" y="0" width="1920" height="54"></rect>
+        <filter x="-0.0%" y="-1.5%" width="100.0%" height="103.0%" filterUnits="objectBoundingBox" id="filter-3">
+            <feGaussianBlur stdDeviation="0" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="85.9496215%" id="linearGradient-4">
+            <stop stop-color="#4FBBFF" offset="0%"></stop>
+            <stop stop-color="#09A1FF" stop-opacity="0.38786604" offset="100%"></stop>
+        </linearGradient>
+        <path d="M0.2890625,72 L662.346616,8.28628629 C709.301053,2.33967301 744.73031,4.46346346 768.634386,14.6576577 C804.490501,29.9489489 841.627192,32.4974975 892.850214,32.4974975 C1068.28906,32.4974975 1068.28906,32.4974975 1243.72791,32.4974975 C1294.95093,32.4974975 1332.08762,29.9489489 1367.94374,14.6576577 C1391.84782,4.46346346 1427.27707,2.33967301 1474.23151,8.28628629 L2136.28906,72" id="path-5"></path>
+        <filter x="-0.3%" y="-9.7%" width="100.6%" height="119.4%" filterUnits="objectBoundingBox" id="filter-6">
+            <feGaussianBlur stdDeviation="2" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-0.4%" y="-12.7%" width="100.8%" height="125.4%" filterUnits="objectBoundingBox" id="filter-7">
+            <feGaussianBlur stdDeviation="1.5" in="SourceAlpha" result="shadowBlurInner1"></feGaussianBlur>
+            <feOffset dx="0" dy="1" in="shadowBlurInner1" result="shadowOffsetInner1"></feOffset>
+            <feComposite in="shadowOffsetInner1" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowInnerInner1"></feComposite>
+            <feColorMatrix values="0 0 0 0 0.351162348   0 0 0 0 0.752823751   0 0 0 0 1  0 0 0 1 0" type="matrix" in="shadowInnerInner1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="图标库" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="标题背景" transform="translate(933.500000, 18.000000) rotate(-180.000000) translate(-933.500000, -18.000000) translate(-135.000000, -18.000000)">
+            <mask id="mask-2" fill="white">
+                <use xlink:href="#path-1"></use>
+            </mask>
+            <g id="矩形"></g>
+            <path d="M0.2890625,72 L662.346616,8.28628629 C709.301053,2.33967301 744.73031,4.46346346 768.634386,14.6576577 C804.490501,29.9489489 841.627192,32.4974975 892.850214,32.4974975 C1068.28906,32.4974975 1068.28906,32.4974975 1243.72791,32.4974975 C1294.95093,32.4974975 1332.08762,29.9489489 1367.94374,14.6576577 C1391.84782,4.46346346 1427.27707,2.33967301 1474.23151,8.28628629 L2136.28906,72" id="路径-2" stroke="#44B1F3" stroke-width="2" filter="url(#filter-3)" mask="url(#mask-2)"></path>
+            <g id="路径-2备份" opacity="0.992606027" filter="url(#filter-6)" mask="url(#mask-2)">
+                <use fill="url(#linearGradient-4)" fill-rule="evenodd" xlink:href="#path-5"></use>
+                <use fill="black" fill-opacity="1" filter="url(#filter-7)" xlink:href="#path-5"></use>
+                <use stroke="#2794DC" stroke-width="1" xlink:href="#path-5"></use>
+            </g>
+        </g>
+    </g>
+</svg>

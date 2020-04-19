@@ -1,0 +1,282 @@
+{
+  "id": "1679290",
+  "name": "VDCP可视化指挥决策系统",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "13383694",
+      "name": "3级",
+      "font_class": "ji2",
+      "unicode": "e63d",
+      "unicode_decimal": 58941
+    },
+    {
+      "icon_id": "13383652",
+      "name": "2级",
+      "font_class": "ji1",
+      "unicode": "e63c",
+      "unicode_decimal": 58940
+    },
+    {
+      "icon_id": "13383651",
+      "name": "1级",
+      "font_class": "ji",
+      "unicode": "e63b",
+      "unicode_decimal": 58939
+    },
+    {
+      "icon_id": "13383494",
+      "name": "新增事件处置",
+      "font_class": "xinzengshijianchuzhi",
+      "unicode": "e63a",
+      "unicode_decimal": 58938
+    },
+    {
+      "icon_id": "13383462",
+      "name": "日期",
+      "font_class": "riqi",
+      "unicode": "e639",
+      "unicode_decimal": 58937
+    },
+    {
+      "icon_id": "13383461",
+      "name": "地图弹出小框",
+      "font_class": "ditudanchuxiaokuang",
+      "unicode": "e638",
+      "unicode_decimal": 58936
+    },
+    {
+      "icon_id": "13383460",
+      "name": "地图弹出",
+      "font_class": "ditudanchu",
+      "unicode": "e637",
+      "unicode_decimal": 58935
+    },
+    {
+      "icon_id": "13383459",
+      "name": "下雨",
+      "font_class": "xiayu",
+      "unicode": "e636",
+      "unicode_decimal": 58934
+    },
+    {
+      "icon_id": "13383458",
+      "name": "帮助",
+      "font_class": "bangzhu",
+      "unicode": "e635",
+      "unicode_decimal": 58933
+    },
+    {
+      "icon_id": "13383457",
+      "name": "退出",
+      "font_class": "tuichu",
+      "unicode": "e634",
+      "unicode_decimal": 58932
+    },
+    {
+      "icon_id": "13383455",
+      "name": "装饰",
+      "font_class": "zhuangshi",
+      "unicode": "e633",
+      "unicode_decimal": 58931
+    },
+    {
+      "icon_id": "13383453",
+      "name": "移动-向上",
+      "font_class": "yidong-xiangshang",
+      "unicode": "e632",
+      "unicode_decimal": 58930
+    },
+    {
+      "icon_id": "13383451",
+      "name": "移动-向下",
+      "font_class": "yidong-xiangxia",
+      "unicode": "e631",
+      "unicode_decimal": 58929
+    },
+    {
+      "icon_id": "13374509",
+      "name": "箭头-下",
+      "font_class": "jiantou-xia",
+      "unicode": "e628",
+      "unicode_decimal": 58920
+    },
+    {
+      "icon_id": "13374507",
+      "name": "箭头-上",
+      "font_class": "jiantou-shang",
+      "unicode": "e627",
+      "unicode_decimal": 58919
+    },
+    {
+      "icon_id": "13374485",
+      "name": "箭头-左左",
+      "font_class": "jiantou-zuozuo",
+      "unicode": "e626",
+      "unicode_decimal": 58918
+    },
+    {
+      "icon_id": "13374466",
+      "name": "箭头-右右",
+      "font_class": "jiantou-youyou",
+      "unicode": "e625",
+      "unicode_decimal": 58917
+    },
+    {
+      "icon_id": "13374460",
+      "name": "箭头-左",
+      "font_class": "jiantou-zuo",
+      "unicode": "e624",
+      "unicode_decimal": 58916
+    },
+    {
+      "icon_id": "13374389",
+      "name": "箭头-右",
+      "font_class": "jiantou-you",
+      "unicode": "e623",
+      "unicode_decimal": 58915
+    },
+    {
+      "icon_id": "13366181",
+      "name": "发言",
+      "font_class": "fayan",
+      "unicode": "e622",
+      "unicode_decimal": 58914
+    },
+    {
+      "icon_id": "13366158",
+      "name": "禁止发言",
+      "font_class": "jinzhifayan",
+      "unicode": "e621",
+      "unicode_decimal": 58913
+    },
+    {
+      "icon_id": "13366147",
+      "name": "广播",
+      "font_class": "guangbo",
+      "unicode": "e620",
+      "unicode_decimal": 58912
+    },
+    {
+      "icon_id": "13366092",
+      "name": "广播故障",
+      "font_class": "guangboguzhang",
+      "unicode": "e61f",
+      "unicode_decimal": 58911
+    },
+    {
+      "icon_id": "13363913",
+      "name": "接听2",
+      "font_class": "jieting1",
+      "unicode": "e61e",
+      "unicode_decimal": 58910
+    },
+    {
+      "icon_id": "13363877",
+      "name": "据听2",
+      "font_class": "juting1",
+      "unicode": "e61d",
+      "unicode_decimal": 58909
+    },
+    {
+      "icon_id": "13363641",
+      "name": "删除",
+      "font_class": "shanchu",
+      "unicode": "e61b",
+      "unicode_decimal": 58907
+    },
+    {
+      "icon_id": "13363611",
+      "name": "轮询",
+      "font_class": "lunxun",
+      "unicode": "e61a",
+      "unicode_decimal": 58906
+    },
+    {
+      "icon_id": "13363374",
+      "name": "多选框",
+      "font_class": "duoxuankuang",
+      "unicode": "e619",
+      "unicode_decimal": 58905
+    },
+    {
+      "icon_id": "13363325",
+      "name": "多选框选中",
+      "font_class": "duoxuankuangxuanzhong",
+      "unicode": "e618",
+      "unicode_decimal": 58904
+    },
+    {
+      "icon_id": "13363308",
+      "name": "加号",
+      "font_class": "jiahao",
+      "unicode": "e617",
+      "unicode_decimal": 58903
+    },
+    {
+      "icon_id": "13363285",
+      "name": "展开",
+      "font_class": "zhankai",
+      "unicode": "e616",
+      "unicode_decimal": 58902
+    },
+    {
+      "icon_id": "13363282",
+      "name": "收缩",
+      "font_class": "shousuo",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "13363237",
+      "name": "编辑1",
+      "font_class": "bianji",
+      "unicode": "e614",
+      "unicode_decimal": 58900
+    },
+    {
+      "icon_id": "13363229",
+      "name": "会场",
+      "font_class": "huichang",
+      "unicode": "e613",
+      "unicode_decimal": 58899
+    },
+    {
+      "icon_id": "13363218",
+      "name": "查询",
+      "font_class": "chaxun",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
+      "icon_id": "13342630",
+      "name": "拨号取消",
+      "font_class": "bohaoquxiao",
+      "unicode": "e606",
+      "unicode_decimal": 58886
+    },
+    {
+      "icon_id": "13342598",
+      "name": "接听",
+      "font_class": "jieting",
+      "unicode": "e605",
+      "unicode_decimal": 58885
+    },
+    {
+      "icon_id": "13342580",
+      "name": "拒听",
+      "font_class": "juting",
+      "unicode": "e604",
+      "unicode_decimal": 58884
+    },
+    {
+      "icon_id": "13338572",
+      "name": "电话键盘",
+      "font_class": "dianhuajianpan",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    }
+  ]
+}

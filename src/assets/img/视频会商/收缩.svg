@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="10px" viewBox="0 0 16 10" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 59.1 (86144) - https://sketch.com -->
+    <title>收缩</title>
+    <desc>Created with Sketch.</desc>
+    <g id="图标库" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="VDCP" transform="translate(-200.000000, -292.000000)">
+            <g id="视频会议" transform="translate(15.000000, 5.000000)">
+                <g id="会场列表" transform="translate(15.000000, 255.000000)">
+                    <g id="收缩" transform="translate(170.000000, 30.000000)">
+                        <rect id="矩形" fill="#000000" fill-rule="nonzero" opacity="0" x="0" y="0" width="16" height="16"></rect>
+                        <polygon fill="#FFFFFF" transform="translate(8.000000, 6.666667) rotate(180.000000) translate(-8.000000, -6.666667) " points="0 2 16 2 8 11.3333333"></polygon>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

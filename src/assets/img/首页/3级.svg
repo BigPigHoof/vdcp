@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="45px" height="45px" viewBox="0 0 45 45" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 59.1 (86144) - https://sketch.com -->
+    <title>3级</title>
+    <desc>Created with Sketch.</desc>
+    <g id="图标库" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="VDCP" transform="translate(-1727.000000, -241.000000)">
+            <g id="首页" transform="translate(462.000000, 95.000000)">
+                <g id="3级" transform="translate(1264.000000, 145.000000)">
+                    <rect id="矩形" fill="#000000" opacity="0" x="0" y="0" width="48" height="48"></rect>
+                    <path d="M23.5,44.5 C11.9020203,44.5 2.5,35.0979797 2.5,23.5 C2.5,11.9020203 11.9020203,2.5 23.5,2.5 C27.6194903,2.5 31.5662736,3.68988066 34.9456271,5.89053685 C40.8578927,9.74064139 44.5,16.3108993 44.5,23.5 C44.5,35.0979797 35.0979797,44.5 23.5,44.5 Z" id="椭圆形" stroke-opacity="0.5" stroke="#0091FF" stroke-width="3" fill="#0091FF"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

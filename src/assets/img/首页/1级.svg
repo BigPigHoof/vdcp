@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="45px" height="45px" viewBox="0 0 45 45" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 59.1 (86144) - https://sketch.com -->
+    <title>1级</title>
+    <desc>Created with Sketch.</desc>
+    <g id="图标库" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="VDCP" transform="translate(-1565.000000, -241.000000)">
+            <g id="首页" transform="translate(462.000000, 95.000000)">
+                <g id="1级" transform="translate(1102.000000, 145.000000)">
+                    <rect id="矩形" fill="#000000" opacity="0" x="0" y="0" width="48" height="48"></rect>
+                    <circle stroke-opacity="0.475579108" stroke="#E13E3E" stroke-width="3" fill="#E13E3E" cx="23.5" cy="23.5" r="21"></circle>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
