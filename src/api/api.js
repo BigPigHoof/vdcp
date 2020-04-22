@@ -7,6 +7,7 @@ export const getIncidentsAnalysis=(params)=>get(ip+'/incident/queryIncidentsAnal
 export const queryMonitorSortInfo=()=>get(ip+'/resources/monitor/queryMonitorSortInfo');
 export const queryEmergencyResourcesInfo=()=>get(ip+'/resources/queryEmergencyResourcesInfo');
 export const addIncidentInfo=(params)=>post(ip+'/incident/addIncidentInfo',params);
+export const releaseInstructions=(params)=>post(ip+'/command/releaseInstructions',params);
 export const loginInSmc=()=>post(ip+'/inner/smc/loginSMC');
 export const getAllSites=()=>get(ip+'/inner/smc/getAllSites');
 export const startMeeting=(params)=>post(ip+'/inner/smc/StartMeeting',params);

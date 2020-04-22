@@ -44,9 +44,7 @@
         <el-col :span="6">
           <label for="parentUnit">上级单位：</label>
           <el-select
-            id="parentUnit"
             size="small"
-            value-key="id"
             v-model="searchInfo.sjdwid"
             filterable
             clearable

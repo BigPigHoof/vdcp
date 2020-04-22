@@ -26,10 +26,14 @@
             </el-input>
           </el-form-item>
           <el-form-item class="half" label="经度">
-            <el-input v-model="form.longitude" autocomplete="off"></el-input>
+            <el-input v-model="form.longitude" autocomplete="off"
+             oninput ="value=value.replace(/[^0-9.]/g,'')"
+            ></el-input>
           </el-form-item>
           <el-form-item class="half" label="纬度">
-            <el-input v-model="form.latitude" autocomplete="off"></el-input>
+            <el-input v-model="form.latitude" autocomplete="off" 
+            oninput ="value=value.replace(/[^0-9.]/g,'')"
+            ></el-input>
           </el-form-item>
           <el-form-item class="half" label="事发时间">
             <el-date-picker
@@ -37,6 +41,7 @@
               v-model="form.occurrTime"
               type="datetime"
               placeholder="选择日期"
+              value-format="yyyy-MM-dd HH:mm:ss"
             ></el-date-picker>
           </el-form-item>
           <el-form-item class="half" label="事件来源">
@@ -59,10 +64,10 @@
           </el-form-item>
           <el-form-item class="half" label="事件等级">
             <el-radio-group class="level-group" v-model="form.level">
-              <el-radio label="1"></el-radio>
-              <el-radio label="2"></el-radio>
-              <el-radio label="3"></el-radio>
-              <el-radio label="4"></el-radio>
+              <el-radio :label="1"></el-radio>
+              <el-radio :label="2"></el-radio>
+              <el-radio :label="3"></el-radio>
+              <el-radio :label="4"></el-radio>
             </el-radio-group>
           </el-form-item>
           <div class="btn-box">

@@ -1,3 +1,4 @@
+
 <!--  -->
 <template>
   <div class="content">
@@ -157,6 +158,8 @@
 </template>
 
 <script>
+/* eslint-disable no-undef */
+
 import bus from "../../assets/js/bus";
 import Nav from "../Nav";
 import TabView from "../VideoMeeting/TabView";
@@ -171,6 +174,10 @@ import {
   queryScheduleConferences
 } from "../../api/api";
 // import { get } from "../../api/http";
+let videoFrams = [];
+
+let mediaQuality = { video: {}, audio: {} };
+
 export default {
   data() {
     return {
@@ -197,6 +204,7 @@ export default {
       that.showList = false;
     });
     bus.$on("openMonitorsPlanForm", this.openPlanForm);
+    bus.$on("openVideo", this.playVideo);
   },
   mounted() {
     this.getPlans();
@@ -208,6 +216,7 @@ export default {
         this.$message.error(res.msg);
       }
     });
+    this.initVideo();
   },
   components: {
     Nav,
@@ -239,11 +248,13 @@ export default {
         if (res.ret == "ok") {
           const getTotal = datas => {
             for (const data of datas) {
-                for (const item of data.monitors) {
-                  if(this.allMonitors.findIndex(item2=>item2.id==item.id)==-1){
-                    this.allMonitors.push(item);
-                  }
+              for (const item of data.monitors) {
+                if (
+                  this.allMonitors.findIndex(item2 => item2.id == item.id) == -1
+                ) {
+                  this.allMonitors.push(item);
                 }
+              }
               if (data.children.length > 0) {
                 getTotal(data.children);
               }
@@ -326,22 +337,448 @@ export default {
       if (this.searchValue) {
         const value = this.searchValue;
         this.searchList = this.allMonitors.filter(
-            item =>
-              item.monitorName.indexOf(value) > -1 || item.code.indexOf(value) > -1
-          );
-          this.showSearchList = true;
+          item =>
+            item.monitorName.indexOf(value) > -1 ||
+            item.code.indexOf(value) > -1
+        );
+        this.showSearchList = true;
       } else {
         this.showSearchList = false;
       }
     },
-        showAll(value){
-      if(!value){
-        this.showSearchList=false;
-         this.searchList=[];
+    showAll(value) {
+      if (!value) {
+        this.showSearchList = false;
+        this.searchList = [];
       }
+    },
+    initVideo() {
+      let rtcSession = null;
+      let serverAddr = window.config.videoServiceIp;
+      let sessionCfg = {};
+      sessionCfg[RtcSessionConfigKey.KEY_LOG_LEVEL] =
+        RtcLogLevel.RTC_LOG_LEVEL_ALL;
+      sessionCfg[RtcSessionConfigKey.KEY_MEDIA_TRANSPORT_TYPE] =
+        RtcTransportType.RTC_TRANSPORT_TYPE_UDP;
+      mediaQuality.video.quality = RtcVideoQuality.RTC_VIDEO_QUALITY_CIF;
+      mediaQuality.video.frameRate = 25;
+      mediaQuality.video.bitRateType =
+        RtcVideoBitrateType.RTC_VIDEO_BITRATE_TYPE_CONSTANT;
+      mediaQuality.audio.quality = RtcAudioQuality.RTC_AUDIO_QUALITY_HQ_HBR;
+      for (let i = 0; i < 9; i++) {
+        videoFrams[i] = {
+          videoSrc: document.querySelector("#video_" + i),
+          handler: null,
+          inUse: false
+        };
+      }
+      rtcSession = rtcInitSession(serverAddr, this.sessionCallback, sessionCfg);
+      if (rtcSession === null) {
+        console.log("rtc session init failed!");
+      }
+    },
+    sessionCallback(result) {
+      const that = this;
+      let evtID = result["EventID"];
+      let isError = result["isError"];
+      if (isError) {
+        //let errReason = result["ErrReason"];
+        //alert("error:"+evtID+"\nreason:"+errReason);
+        switch (evtID) {
+          case RtcCommonEventID.RTC_SESSION_CONNECTION_FAILED:
+            that.$message.error("监控服务器连接失败");
+            break;
+        }
+        return;
+      }
+      let serviceCallback = function(handler, event) {
+        if (event.isError) {
+          if (event.EventID === RtcCamEventID.RTC_CHANNEL_LOGIN_FAILED) {
+            that.$message.error("监控服务器登录失败");
+          } else if (
+            event.EventObj !== undefined &&
+            event.EventObj.request !== undefined
+          ) {
+            that.$message.error(
+              event.EventObj.request + "请求失败; \n原因：" + event.ErrReason
+            );
+          } else {
+            that.$message.error(event.ErrReason);
+          }
+          return;
+        }
+        switch (event.EventID) {
+          case RtcCamEventID.RTC_CHANNEL_CALL_INCOMING:
+            {
+              let callInfo = event.EventObj;
+              $("#status").text(callInfo.peerName + "来电...");
+              bootbox.dialog({
+                message: "是否接听" + callInfo.peerName + "的来电?",
+                title: "来电",
+                closeButton: false,
+                buttons: {
+                  success: {
+                    label: "接听",
+                    className: "btn-success",
+                    callback: function() {
+                      rtcCamAnswerCall(
+                        handler,
+                        RtcMediaType.RTC_MEDIA_TYPE_AUDIO_VIDEO
+                      );
+                    }
+                  },
+                  danger: {
+                    label: "拒绝",
+                    className: "btn-danger",
+                    callback: function() {
+                      rtcCamRejectCall(handler);
+                    }
+                  }
+                }
+              });
+            }
+            break;
+          case RtcCamEventID.RTC_CHANNEL_LOCAL_STREAM_INCOMING:
+            {
+              let streamObj = event["EventObj"];
+              rtcAttachStream($("#video_local").get(0), streamObj);
+            }
+            break;
+          case RtcCamEventID.RTC_CHANNEL_REMOTE_STREAM_INCOMING:
+            {
+              let streamObj = event["EventObj"];
+              rtcAttachStream($("#video_remote").get(0), streamObj);
+            }
+            break;
+          case RtcCamEventID.RTC_CHANNEL_LOCAL_NO_CAMERA:
+            $("#no_camera_local")
+              .removeClass("hide")
+              .text("无摄像头")
+              .show();
+            break;
+          case RtcCamEventID.RTC_CHANNEL_LOCAL_NO_MICROPHONE:
+            $("#no_mic_local")
+              .removeClass("hide")
+              .text("无麦克风")
+              .show();
+            break;
+          case RtcCamEventID.RTC_CHANNEL_CALL_OUTGOING:
+            {
+              $("#status").text("呼叫中...");
+              $("#name_local")
+                .removeClass("hide")
+                .text("我");
+              $("#makeCall").text("挂断");
+            }
+            break;
+          case RtcCamEventID.RTC_CHANNEL_CALL_ACCEPTING:
+            {
+              $("#status").text("等待接听中...");
+              $("#makeCall").text("挂断");
+            }
+            break;
+          case RtcCamEventID.RTC_CHANNEL_CALL_ACCEPTED:
+            {
+              let callInfo = event["EventObj"];
+              $("#status").text("已接通" + callInfo.peerName);
+              $("#makeCall").text("挂断");
+              $("#name_remote")
+                .removeClass("hide")
+                .text(callInfo.peerName);
+              $("#name_local")
+                .removeClass("hide")
+                .text("我");
+              if (!$("#matrixWin").hasClass("hide")) {
+                $("#show_matrix").click();
+              }
+
+              //加入本地和远端窗口的右击菜单
+              let vData_local = [
+                [
+                  {
+                    text: "切换静音",
+                    func: function() {
+                      //本地静音
+                      if (
+                        rtcCamIsLocalMediaMuted(
+                          RtcMediaType.RTC_MEDIA_TYPE_AUDIO
+                        )
+                      ) {
+                        rtcCamMuteLocalMedia(
+                          RtcMediaType.RTC_MEDIA_TYPE_AUDIO,
+                          false
+                        );
+                        $("#muted_local_audio")
+                          .text("静音")
+                          .addClass("hide");
+                      } else {
+                        rtcCamMuteLocalMedia(
+                          RtcMediaType.RTC_MEDIA_TYPE_AUDIO,
+                          true
+                        );
+                        $("#muted_local_audio")
+                          .text("静音")
+                          .removeClass("hide");
+                      }
+                    }
+                  },
+                  {
+                    text: "切换禁像",
+                    func: function() {
+                      //本地静音
+                      if (
+                        rtcCamIsLocalMediaMuted(
+                          RtcMediaType.RTC_MEDIA_TYPE_VIDEO
+                        )
+                      ) {
+                        rtcCamMuteLocalMedia(
+                          RtcMediaType.RTC_MEDIA_TYPE_VIDEO,
+                          false
+                        );
+                        $("#muted_local_video")
+                          .text("禁像")
+                          .addClass("hide");
+                      } else {
+                        rtcCamMuteLocalMedia(
+                          RtcMediaType.RTC_MEDIA_TYPE_VIDEO,
+                          true
+                        );
+                        $("#muted_local_video")
+                          .text("禁像")
+                          .removeClass("hide");
+                      }
+                    }
+                  }
+                ]
+              ];
+              let options_local = {
+                name: "menu_local",
+                beforeShow: function() {
+                  $.smartMenu.remove();
+                }
+              };
+              $("#vframe_local").smartMenu(vData_local, options_local);
+
+              let vData_remote = [
+                [
+                  {
+                    text: "切换静音",
+                    func: function() {
+                      //远端静音
+                      if (
+                        rtcCamIsRemoteMediaListened(
+                          handler,
+                          RtcMediaType.RTC_MEDIA_TYPE_AUDIO
+                        )
+                      ) {
+                        rtcCamListenRemoteMedia(
+                          handler,
+                          RtcMediaType.RTC_MEDIA_TYPE_AUDIO,
+                          false
+                        );
+                        $("#muted_remote_audio")
+                          .text("静音")
+                          .removeClass("hide");
+                      } else {
+                        rtcCamListenRemoteMedia(
+                          handler,
+                          RtcMediaType.RTC_MEDIA_TYPE_AUDIO,
+                          true
+                        );
+                        $("#muted_remote_audio")
+                          .text("静音")
+                          .addClass("hide");
+                      }
+                    }
+                  },
+                  {
+                    text: "切换禁像",
+                    func: function() {
+                      //本地静音
+                      if (
+                        rtcCamIsRemoteMediaListened(
+                          handler,
+                          RtcMediaType.RTC_MEDIA_TYPE_VIDEO
+                        )
+                      ) {
+                        rtcCamListenRemoteMedia(
+                          handler,
+                          RtcMediaType.RTC_MEDIA_TYPE_VIDEO,
+                          false
+                        );
+                        $("#muted_remote_video")
+                          .text("禁像")
+                          .removeClass("hide");
+                      } else {
+                        rtcCamListenRemoteMedia(
+                          handler,
+                          RtcMediaType.RTC_MEDIA_TYPE_VIDEO,
+                          true
+                        );
+                        $("#muted_remote_video")
+                          .text("禁像")
+                          .addClass("hide");
+                      }
+                    }
+                  }
+                ]
+              ];
+              let options_remote = {
+                name: "menu_remote",
+                beforeShow: function() {
+                  $.smartMenu.remove();
+                }
+              };
+              $("#vframe_remote").smartMenu(vData_remote, options_remote);
+            }
+            break;
+        }
+      };
+      switch (evtID) {
+        case RtcCommonEventID.RTC_SESSION_INIT_SUCCESS:
+          rtcApplyService(
+            rtcSession,
+            RtcServiceType.RTC_SERVICE_TYPE_CAM,
+            serviceCallback
+          );
+          //... 可以申请更多服务
+          break;
+        case RtcCommonEventID.RTC_SERVICE_APPLY_SUCCESS:
+          console.log("EventID:" + evtID);
+          if (result.EventObj !== RtcServiceType.RTC_SERVICE_TYPE_CAM) {
+            that.$message.error("非视频监控服务!");
+            break;
+          }
+          break;
+        case RtcCommonEventID.RTC_SESSION_DESTROYED:
+          window.location.reload();
+          break;
+        default:
+          console.log("EventID:" + evtID);
+          break;
+      }
+    },
+
+    playVideo(code) {
+        let feedIndex = findEmptyVideoFrame();
+    if(feedIndex === -1)
+    {
+        this.$message.warning("没有多余的窗口显示监控视频！");
+        return;
+    }
+    let frame = videoFrams[feedIndex];
+      let chCallback = function(handler, event) {
+        switch (event.EventID) {
+          case RtcCamEventID.RTC_CHANNEL_BUILD_SUCCESS:
+            {
+              
+              frame.handler = handler;
+            }
+            break;
+          case RtcCamEventID.RTC_CHANNEL_REMOTE_OUTGOING:
+       
+            frame.inUse = true;
+            break;
+          case RtcCamEventID.RTC_CHANNEL_REMOTE_ACCEPTING:
+            break;
+          case RtcCamEventID.RTC_CHANNEL_REMOTE_ACCEPTED:
+      
+            frame.name = code;
+            
+            if (frame.videoSrc !== null) {
+              frame.videoSrc.bind("playing", function() {
+                if (this.videoWidth) frame.videoSrc.removeClass("hide").show();
+              });
+            }
+            frame.playTime = 0;
+            frame.stepFactor = 1.0;
+            frame.timerId = setInterval(() => {
+              frame.playTime += PLAY_STEP * frame.stepFactor;
+              //console.log("timerId:"+frame.timerId+";playTime="+frame.playTime);
+              progress.get(0).value = frame.playTime;
+              if (
+                frame.playTime > parseFloat(progress.get(0).max) ||
+                frame.playTime <= 0
+              ) {
+                frame.reachMax = true;
+                clearInterval(frame.timerId);
+                frame.playTime = 0;
+                progress.get(0).value = frame.playTime;
+                btnPlay.text("播放");
+              }
+            }, PLAY_INTERVAL);
+            btnPlay.text("暂停");
+            if (isPlayback) {
+              controlArea.removeClass("hide");
+            }
+            break;
+          case RtcCamEventID.RTC_CHANNEL_REMOTE_STREAM_INCOMING:
+            {
+              let streamObj = event["EventObj"];
+              rtcAttachStream(frame.videoSrc, streamObj);
+              
+            }
+            break;
+          case RtcCamEventID.RTC_CHANNEL_REMOTE_STREAM_NO_AUDIO:
+            //status.text(userName+":无音频流");
+            break;
+          case RtcCamEventID.RTC_CHANNEL_REMOTE_STREAM_NO_VIDEO:
+            // status.text(userName+":无视频流");
+            break;
+          case RtcCamEventID.RTC_CHANNEL_REMOTE_CONNECT_FAIL:
+            if (event.EventObj !== undefined) {
+              status.text(userName + ": 未接通");
+            }
+            break;
+          case RtcCamEventID.RTC_CHANNEL_REMOTE_DISCONNECT:
+            if (event.EventObj !== undefined) {
+              status.text(userName + ": 已退出");
+            }
+            if (frame.timerId !== 0) {
+              clearInterval(frame.timerId);
+              frame.timerId = 0;
+              progress.get(0).value = 0;
+              frame.playTime = 0;
+            }
+            btnPlay.unbind();
+            btnStop.unbind();
+            btnForwardf.unbind();
+            btnForwards.unbind();
+            btnBackward.unbind();
+            break;
+          case RtcCamEventID.RTC_CHANNEL_CLOSED:
+            status.text(userName + ": 已断开");
+            labelName.addClass("hide");
+            labelQuality.addClass("hide");
+            frame.inUse = false;
+            frame.handler = null;
+            if (isPlayback) {
+              controlArea.addClass("hide");
+            }
+
+            break;
+        }
+      };
+      rtcCamOpenStream(
+        code,
+        RtcMediaType.RTC_MEDIA_TYPE_AUDIO_VIDEO,
+        { mediaQuality },
+        chCallback
+      );
     }
   }
 };
+function findEmptyVideoFrame() {
+  let index = -1;
+  let i = 0;
+  for (i; i < videoFrams.length; i++) {
+    if (videoFrams[i].inUse === false) {
+      index = i;
+      break;
+    }
+  }
+  return index;
+}
 </script>
 <style lang="scss" scoped>
 .content {

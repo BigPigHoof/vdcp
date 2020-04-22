@@ -2,7 +2,15 @@
 <template>
   <div>
     <el-dialog title="修改密码" :visible.sync="show" width="50%" :modal="false">
-      <el-form v-if="show" :model="form" size="small"    :rules="rules" label-suffix="：" ref="form" class="form-box">
+      <el-form
+        v-if="show"
+        :model="form"
+        size="small"
+        :rules="rules"
+        label-suffix="："
+        ref="form"
+        class="form-box"
+      >
         <el-form-item prop="passWord" label="旧密码" :label-width="formLabelWidth">
           <el-input v-model="form.passWord" show-password autocomplete="off"></el-input>
         </el-form-item>
@@ -22,7 +30,7 @@
 </template>
 
 <script>
-import {updatePassword} from '../../api/api'
+import { updatePassword } from "../../api/api";
 export default {
   data() {
     var validatePass = (rule, value, callback) => {
@@ -49,7 +57,7 @@ export default {
       show: true,
       isSaving: false,
       form: {
-          userName:sessionStorage.getItem('isLogin'),
+        userName: sessionStorage.getItem("isLogin"),
         passWord: "",
         newPassWord: "",
         repeatPassword: ""
@@ -79,19 +87,21 @@ export default {
   },
   methods: {
     save() {
-           this.$refs["form"].validate(valid => {
+      this.$refs["form"].validate(valid => {
         if (valid) {
-        
-          this.isSaving=true;
-          updatePassword(this.form).then(res=>{
-             this.isSaving=false;
-             if (res.ret == "ok") {
+          this.isSaving = true;
+          updatePassword(this.form).then(res => {
+            this.isSaving = false;
+            if (res.ret == "ok") {
               this.$message.success("保存成功");
               this.$refs.form.resetFields();
+              this.$router.push({
+                name: "Login"
+              });
             } else {
               this.$message.error(res.msg);
             }
-          })
+          });
         } else {
           return false;
         }
@@ -101,11 +111,11 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.form-box{
-    padding: 0 30px;
-    
-    /deep/.el-form-item__content{
-        margin-right: 100px;
-    }
+.form-box {
+  padding: 0 30px;
+
+  /deep/.el-form-item__content {
+    margin-right: 100px;
+  }
 }
 </style>

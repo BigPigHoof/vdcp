@@ -336,9 +336,8 @@ export default {
             xzqhmc: data.administrativeDivision.xzqhmc,
             xzqhid: data.administrativeDivision.id,
             znms: data.znms,
-            sjjgmc: data.parent? data.parent.zzjgmc:null,
             zjrq: data.formatTime,
-            sjjgid: data.parent?data.parent.id:null,
+            sjjgid: data.sjjgid,
             zgldid: data.leader ? data.leader.id : "",
             llyid: data.liaison ? data.liaison.id : ""
           };

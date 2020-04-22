@@ -4,7 +4,7 @@
     <div class="left top-z">
       <TabView :heads="['事件详情','事件动态']">
         <template v-slot:left>
-          <div class="info-box">
+          <div class="info-box" >
             <h4 :title="eventData.title">{{eventData.title}}</h4>
             <p class="time">{{eventData.occurrTime}}</p>
             <div class="content-box">
@@ -55,14 +55,19 @@
       </div>
     </div>
     <div class="right top-z"></div>
-      <transition name="el-fade-in-linear">
-    <div class="pop-box" :style="popStyle" v-show="showPop">
-     
-          <i style="float:right;" class="el-icon-close" @click="showPop=false"></i>
-     
-       <div v-html = 'popHtml'></div>
-    </div>
-      </transition>
+    <transition name="el-fade-in-linear">
+      <div class="pop-box" :style="popStyle" v-show="showPop">
+        <i style="float:right;" class="el-icon-close" @click="showPop=false"></i>
+
+        <div v-html="popHtml" class="info"></div>
+      </div>
+    </transition>
+    <el-dialog title="发送短信" :visible.sync="showMsgBox">
+      <el-input type="textarea" :rows="2" v-model="msgInfo.zlnr"></el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="small" type="primary" :loading="isSending" @click="sendMsg">发 送</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -75,7 +80,8 @@ import {
   getWeekIncident,
   queryAroundResourceInfo,
   queryIncidentInfoTimeAxis,
-  queryEmergencyResources
+  queryEmergencyResources,
+  releaseInstructions
 } from "../../api/api";
 
 export default {
@@ -89,20 +95,32 @@ export default {
       timer: null,
       isScrolling: false,
       markers: [],
-      showPop:false,
-      popHtml:'',
-     popStyle:{
-       top:0,left:0
-     }
+      showPop: false,
+      popHtml: "",
+      popStyle: {
+        top: 0,
+        left: 0
+      },
+      showMsgBox: false,
+      msgInfo:{
+        zlnr:'', zdbh:'', xtyh:'', sjid:this.$route.params.id
+      },
+      isSending:false
     };
   },
   created() {
+    console.log(this.$route)
     getWeekIncident().then(res => {
       if (res.ret == "ok") {
-        this.eventData = res.content.find(
-          item => item.id == this.$route.params.id
-        );
-        let markers = this.map.getAllOverlays("marker");
+        for (const item of res.content) {
+          if(item.id == this.$route.params.id){
+            this.eventData =item;
+          }
+          
+        }
+   
+       if(this.eventData.id){
+          let markers = this.map.getAllOverlays("marker");
         let circle = this.map.getAllOverlays("circle");
         let { longitude, latitude, id } = this.eventData;
         if (markers) {
@@ -115,8 +133,16 @@ export default {
         this.getEventDynamics(id);
         this.map.setCenter([longitude, latitude]);
         drawCircle(longitude, latitude, this.map);
+       }else{
+         this.$message.warning('暂无数据')
+       }
+       
+      }else{
+        this.$message.error(res.msg);
       }
     });
+    window.openMegBox = this.openMegBox;
+    window.call = this.call;
   },
   beforeDestroy() {
     clearInterval(this.timer);
@@ -295,30 +321,31 @@ export default {
           };
           for (const item of res.content) {
             let { avaid, total } = item;
-            let percent=total==0?0:avaid/total*100;
+            let percent = total == 0 ? 0 : (avaid / total) * 100;
             const colors = ["#C7F599", "#B8BBBE", "#F896B1"];
-            let color='#ffffff';
+            let color = "#ffffff";
             if (percent < 33) {
-              color= colors[2];
+              color = colors[2];
             } else if (percent > 66) {
-              color=  colors[0];
+              color = colors[0];
             } else {
-              color=  colors[1];
+              color = colors[1];
             }
-                
+
             arr1.push(mapping[item.type]);
-            arr2.push({ value:percent, ...item });
-            arr3.push({ value: 100, 
-            label:{
-              color,
-              fontSize: 18,
-              padding: [4, 0, 0, 0],
-              position: "right",
-              formatter: () => {
-                return Math.round(percent)+'%'
-              }
-            },
-            ...item 
+            arr2.push({ value: percent, ...item });
+            arr3.push({
+              value: 100,
+              label: {
+                color,
+                fontSize: 18,
+                padding: [4, 0, 0, 0],
+                position: "right",
+                formatter: () => {
+                  return Math.round(percent) + "%";
+                }
+              },
+              ...item
             });
           }
           option.yAxis.data = arr1;
@@ -391,7 +418,7 @@ export default {
       }
     },
     getMarkers(type) {
-      let that=this;
+      let that = this;
       queryEmergencyResources({ resourceType: type }).then(res => {
         if (res.ret == "ok") {
           this.map.remove(this.markers);
@@ -410,13 +437,13 @@ export default {
                 type == "CZLL" ? item.wd : item.latitude
               ]
             });
-               //标记鼠标单机事件
-                marker.on('click', function (e) {
-                    console.log(e);
-                    let html = '';
-                    switch (type) {
-                        case 'SXT':
-                            html = `
+            //标记鼠标单机事件
+            marker.on("click", function(e) {
+              console.log(e);
+              let html = "";
+              switch (type) {
+                case "SXT":
+                  html = `
                                 <div>
                                 <span>类型:</span><span>${item.cameraType}</span>
                             </div>
@@ -426,50 +453,78 @@ export default {
                             <div>
                                 <span>地址:</span><span>${item.address}</span>
                             </div>`;
-                            break;
-                        case 'ZBJQ':
-
-                            html = `<div>
+                  break;
+                   case "ZDRY":
+                  html = `
+                                <div>
+                                <span>姓名:</span><span>${item.name}</span>
+                            </div>
+                            <div>
+                                <span>地址:</span><span>${item.address}</span>
+                            </div>`;
+                  break;
+                case "ZBJQ":
+                  html = `<div>
                                     <span>标题:</span><span>${item.title}</span>
                                 </div>
                                 <div>
-                                    <span>时间:</span><span>${item.caseTime.split('.')[0].replace('T', ' ')}</span>
+                                    <span>时间:</span><span>${item.caseTime
+                                      .split(".")[0]
+                                      .replace("T", " ")}</span>
                                 </div>
                                 <div>
-                                    <span>地址:</span><span>${item.address}</span>
+                                    <span>地址:</span><span>${
+                                      item.address
+                                    }</span>
                                 </div>`;
-                            break;
-                        case 'CZLL':
-                            html = ` <div>
-                                        <span>编号:</span><span id="bh">${item.bh}</span>
+                  break;
+                case "CZLL":
+                  html = ` <div>
+                                        <span>编号:</span><span id="bh">${
+                                          item.bh
+                                        }</span>
                                     </div>
                                         <div>
-                                        <span>名称:</span><span id="mc">${item.mc}</span>
+                                        <span>名称:</span><span id="mc">${
+                                          item.mc
+                                        }</span>
                                     </div>
                                             <div>
-                                            <span>所属机构:</span><span>${item.ssjgmc}</span>
+                                            <span>所属机构:</span><span>${
+                                              item.ssjgmc
+                                            }</span>
                                         </div>
                                         <div>
-                                        <span>呼号:</span><span id="hh" xtzh="${item.xtzh}">${item.hjhm}</span>
+                                        <span>呼号:</span><span id="hh" xtzh="${
+                                          item.xtzh
+                                        }">${item.hjhm}</span>
                                     </div>
                                     <div>
-                                        <span>联系方式:</span><span>${item.lxfs ? item.lxfs : ''}</span>
+                                        <span>联系方式:</span><span>${
+                                          item.lxfs ? item.lxfs : ""
+                                        }</span>
                                     </div>
                                     <div>
-                                        <span>定位时间:</span><span>${item.dwsj}</span>
+                                        <span>定位时间:</span><span>${
+                                          item.dwsj
+                                        }</span>
                                     </div>
                                         <div>
-                                        <span>经度:</span><span>${item.jd}</span>
+                                        <span>经度:</span><span>${
+                                          item.jd
+                                        }</span>
                                     </div>
                                         <div>
-                                        <span>纬度:</span><span>${item.wd}</span>
+                                        <span>纬度:</span><span>${
+                                          item.wd
+                                        }</span>
                                     </div>
-                                    <div class="btns">
-                                    <span class="msg-btn">指令下达</span>  <span class="voice-btn">语音调度</span>  <span class="video-btn">视频调度</span>
+                                    <div class="info-btns">
+                                    <span class="msg-btn" onclick="openMegBox(event,'${item.xtzh}','${item.bh}')">指令下达</span>  <span class="voice-btn" onclick="call(0,'${item.xtzh}')">语音调度</span>  <span class="video-btn" onclick="call(1,'${item.xtzh}')">视频调度</span>
                                 </div>`;
-                            break;
-                        case 'ZDDW':
-                            html = `<span class="iconfont icon-close"></span><div>
+                  break;
+                case "ZDDW":
+                  html = `<span class="iconfont icon-close"></span><div>
                                     <span>类型:</span><span>${item.type}</span>
                                 </div>
                                 <div>
@@ -481,9 +536,9 @@ export default {
                                 <div>
                                     <span>手机号:</span><span>${item.phone}</span>
                                 </div>`;
-                            break;
-                        case 'BXCS':
-                            html = `<span class="iconfont icon-close"></span><div>
+                  break;
+                case "BXCS":
+                  html = `<span class="iconfont icon-close"></span><div>
                                     <span>单位:</span><span>${item.unit}</span>
                                 </div>
                                 <div>
@@ -495,17 +550,17 @@ export default {
                                 <div>
                                     <span>手机号:</span><span>${item.phone}</span>
                                 </div>`;
-                            break;
-                    }
+                  break;
+              }
 
-                   that.popHtml=html;
-                   console.log(e.pixel);
-                   that.popStyle={
-                       'left': e.pixel.x+'px',
-                         'bottom': 1080 - e.pixel.y + 30+'px'
-                   }
-                   that.showPop=true;
-                });
+              that.popHtml = html;
+              console.log(e.pixel);
+              that.popStyle = {
+                left: e.pixel.x + "px",
+                bottom: 1080 - e.pixel.y + 30 + "px"
+              };
+              that.showPop = true;
+            });
             //标记双击事件
             marker.on("dblclick", function(e) {
               console.log(e, item.cameraCode);
@@ -528,9 +583,53 @@ export default {
         background: "url(" + require(`../../assets/img/首页/${type}.png`) + ")",
         backgroundSize: "contain"
       };
+    },
+    openMegBox(e,xtzh,bh) {
+      this.msgInfo.zdbh=bh;
+      this.msgInfo.xtyh=xtzh;
+      this.msgInfo.zlnr='';
+      this.showMsgBox = true;
+
+    },
+    sendMsg() {
+      if(this.msgInfo.zlnr.trim()){
+        this.isSending=true;
+         releaseInstructions(this.msgInfo).then(res=>{
+              this.isSending=false;
+           if(res.ret=='ok'){
+             this.showMsgBox=false;
+             this.$message.success('发送成功');
+           }else{
+             this.$message.error(res.msg)
+           }
+         })
+      }else{
+        this.$message.warning('请输入内容');
+      }
+     
+    },
+    call(type,number){
+        const that=this;
+         if (number) {
+
+            // eslint-disable-next-line no-undef
+            tsdkClient.startCall(number, 0, function (data) {
+                // eslint-disable-next-line no-undef
+                call_Id = data.param.callId;
+                let tip=type==0?'语音':'视频';
+                if (data.result) {
+                    that.$message.success(tip+'调度成功');
+                } else {
+                    that.$message.error(tip+'调度失败');
+                }
+            });
+        } else {
+             that.$message.warning('没有呼号');
+        }
     }
   }
 };
+
 function drawCircle(Lng, Lat, map) {
   var marker = new AMap.Marker({
     position: new AMap.LngLat(Lng, Lat), // 经纬度对象，也可以是经纬度构成的一维数组[116.39, 39.9]
@@ -748,19 +847,31 @@ function drawCircle(Lng, Lat, map) {
     }
   }
 }
-.pop-box{
-    padding: 16px 16px;
-    z-index: 5;
-    box-sizing: border-box;
-    position: absolute;
-    background-image: linear-gradient(to right, #234672, #000000);
-    border: 1px #6388b6 solid;
-    border-radius: 3px;
-    transform: translateX(-50%);
-.el-icon-close{
+.pop-box {
+  padding: 16px 16px;
+  z-index: 5;
+  box-sizing: border-box;
   position: absolute;
-  top: 2px;
-  right: 2px;
+  background-image: linear-gradient(to right, #234672, #000000);
+  border: 1px #6388b6 solid;
+  border-radius: 3px;
+  transform: translateX(-50%);
+  .el-icon-close {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+  }
 }
+</style>
+<style lang="scss">
+.info-btns {
+  display: flex;
+  justify-content: space-between;
+  & > span {
+    padding: 0 4px;
+    border-radius: 3px;
+    cursor: pointer;
+    background-color: rgb(47, 86, 162);
+  }
 }
 </style>

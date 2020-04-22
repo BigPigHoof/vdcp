@@ -67,14 +67,14 @@
           <label for="region">行政区域：</label>
           <el-cascader
             id="region"
-            v-model="searchInfo.xzqhmc"
+            v-model="searchInfo.xzqhid"
             :options="options"
             clearable
             ref="cascader"
             filterable
             size="small"
             :show-all-levels="false"
-            :props="{ expandTrigger: 'hover',value:'xzqhmc',label:'xzqhmc',checkStrictly : true }"
+            :props="{ expandTrigger: 'hover',value:'id',label:'xzqhmc',checkStrictly : true }"
             @change="regionChange"
           ></el-cascader>
         </el-col>
@@ -91,7 +91,7 @@
     >
       <el-table-column prop="zzjgmc" label="名称"></el-table-column>
       <el-table-column prop="zzjgbm" label="编码"></el-table-column>
-      <el-table-column prop="xzqhjb" :formatter="formatterLevel" label="行政级别"></el-table-column>
+      <el-table-column prop="administrativeDivision.xzqhjb" :formatter="formatterLevel" label="行政级别"></el-table-column>
       <el-table-column prop="sjjgmc" label="上级机构"></el-table-column>
       <el-table-column prop="administrativeDivision.xzqhmc" label="所属行政区域"></el-table-column>
 
@@ -121,7 +121,7 @@ export default {
       nowJgid:'',
       searchInfo: {
         xzqhjb: null,
-        xzqhmc: null,
+        xzqhid: null,
         sjjgmc: null,
         jgbm: null,
         jgmc: null,
@@ -228,12 +228,15 @@ export default {
       });
     },
     formatterLevel(row) {
-      return this.regionLevels[parseInt(row.xzqhjb) - 1];
+      if(row.administrativeDivision){
+        return this.regionLevels[parseInt(row.administrativeDivision.xzqhjb) - 1];
+      }
+      
     },
     searchAgency() {
-      if (this.searchInfo.xzqhmc) {
-        this.searchInfo.xzqhmc = this.searchInfo.xzqhmc.toString();
-        console.log(this.searchInfo.xzqhmc);
+      if (this.searchInfo.xzqhid) {
+        this.searchInfo.xzqhid = this.searchInfo.xzqhid.toString();
+        console.log(this.searchInfo.xzqhid);
       }
 
        this.loading = true;

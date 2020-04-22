@@ -1,7 +1,7 @@
 <!--  -->
 <template>
   <div>
-    <el-dialog :title="title" :visible="show" width="60%" @close="closeForm">
+    <el-dialog :title="title" :visible="show" width="70%" @close="closeForm">
       <el-form v-if="show" :model="form" size="small" label-suffix="：" ref="form" class="form-box">
         <el-row :gutter="20">
           <el-col :span="8">
@@ -27,12 +27,11 @@
             >
               <el-input v-model="form.xm" autocomplete="off"></el-input>
             </el-form-item>
-            <el-form-item class="half" label="上级机构" prop="jgmc" :label-width="formLabelWidth">
+            <el-form-item class="half" label="上级机构" prop="jgid" :label-width="formLabelWidth">
               <el-select
                 autocomplete="off"
-                v-model="form.jgmc"
-                filterable
-                @visible-change="searchAgency"
+                v-model="form.jgid"
+                filterable       
                 clearable
                 :loading="isSearchingAgency"
               >
@@ -40,14 +39,14 @@
                   v-for="item in agencyData"
                   :key="item.id"
                   :label="item.zzjgmc"
-                  :value="item.zzjgmc"
+                  :value="item.id"
                 ></el-option>
               </el-select>
             </el-form-item>
             <el-form-item class="half" label="职务" prop="zw" :label-width="formLabelWidth">
               <el-input v-model="form.zw" autocomplete="off"></el-input>
             </el-form-item>
-            <el-form-item class="half" label="组建日期" prop="csrq" :label-width="formLabelWidth">
+            <el-form-item class="half" label="出生日期" prop="csrq" :label-width="formLabelWidth">
               <el-date-picker v-model="form.csrq" type="date"></el-date-picker>
             </el-form-item>
             <el-form-item class="half" label="性别" prop="xb" :label-width="formLabelWidth">
@@ -124,7 +123,9 @@ export default {
       ip: window.config.apiIp
     };
   },
-
+  mounted(){
+    this.searchAgency();
+  },
   methods: {
     closeForm() {
       this.$emit("update:show", false);
@@ -174,6 +175,7 @@ export default {
             this.isSaving = false;
             if (res.ret == "ok") {
               this.$message.success("保存成功");
+              this.$emit('refresh',{});
               this.closeForm();
             } else {
               this.$message.error(res.msg);

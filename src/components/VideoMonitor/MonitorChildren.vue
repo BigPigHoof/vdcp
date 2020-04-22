@@ -3,7 +3,7 @@
   <div>
     <ul class="site">
       <li v-for="item in list" :key="item.id">
-        <div class="left">
+        <div class="left"  @dblclick="bus.$emit('openVideo',item.code)">
           <span class="state"></span>
           <span class="name ellipsis" :title="item.monitorName">{{item.monitorName}}</span>
         </div>
@@ -16,10 +16,13 @@
 </template>
 
 <script>
+import bus from "../../assets/js/bus";
 export default {
   props: ["list"],
   data() {
-    return {};
+    return {
+      bus
+    };
   },
 
   components: {}

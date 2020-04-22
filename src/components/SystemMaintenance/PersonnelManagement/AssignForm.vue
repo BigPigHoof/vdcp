@@ -129,6 +129,7 @@ export default {
              this.isSaving=false;
              if (res.ret == "ok") {
               this.$message.success("保存成功");
+              this.$emit('refresh',{});
               this.closeForm();
             } else {
               this.$message.error(res.msg);

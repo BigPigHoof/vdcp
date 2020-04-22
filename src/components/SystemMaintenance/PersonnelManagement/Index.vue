@@ -65,8 +65,8 @@
         </template>
       </el-table-column>
     </el-table>
-    <PersonForm :show.sync="showPersonForm" ref="personForm" :title="formTitle" :form="formData"></PersonForm>
-    <AssignForm :show.sync="showAssignForm" :person="person" ref="assignForm"></AssignForm>
+    <PersonForm :show.sync="showPersonForm" ref="personForm" :title="formTitle" :form="formData" @refresh="getPersons"></PersonForm>
+    <AssignForm :show.sync="showAssignForm" :person="person" ref="assignForm" @refresh="getPersons"></AssignForm>
   </div>
 </template>
 
@@ -168,7 +168,7 @@ export default {
       if (type == "add") {
         this.formTitle = "添加人员";
         this.formData = {
-          jgmc: null,
+          jgid: null,
           xm: null,
           zw: null,
           csrq: null,
@@ -186,7 +186,8 @@ export default {
         };
       } else {
         this.formTitle = "修改人员";
-        this.formData = item;
+        item.jgid=item.zzjgid;
+        this.formData = Object.assign({}, item);
       }
       this.showPersonForm = true;
     }
