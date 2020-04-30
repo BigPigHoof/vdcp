@@ -8,7 +8,8 @@ export default new vuex.Store({
             name: "",
             mainSiteUri: ""
         },
-        selectedSites:[]
+        selectedSites:[],
+        hasCompetence:sessionStorage.getItem('isLogin')?true:false
     },
     mutations:{
         update(state,newVal){//这里的state对应着上面这个state

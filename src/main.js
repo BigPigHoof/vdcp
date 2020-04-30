@@ -9,6 +9,7 @@ import './assets/if2/iconfont.css'
 import Moment from 'moment'
 import echarts from 'echarts'
 Vue.prototype.$echarts = echarts
+
 Vue.filter('dateformat', function(dataStr, pattern = 'YYYY-MM-DD HH:mm:ss') {
   return Moment(dataStr).format(pattern)
 })

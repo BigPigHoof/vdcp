@@ -1,7 +1,6 @@
 <!--  -->
 <template>
   <div class="wrapper">
-
     <header :style="{zIndex:$route.name=='EventDetail'?'4':'1'}">
       <div class="left">
         <div class="weather">
@@ -13,23 +12,29 @@
       <div class="right">
         <div class="time">
           <span class="date-time">{{nowTime| dateformat('YYYY-MM-DD HH:mm')}}</span>
-          <span class="question" @click="showHelpCenter=true" >
+          <span class="question" @click="showHelpCenter=true">
             <i class="el-icon-question"></i>
           </span>
         </div>
 
         <i class="iconfont icontuichu logout" @click="logout"></i>
+        <p style="font-size:14px;">
+          <span>当前用户：</span>
+          <span>{{nowUser}}</span>
+        </p>
       </div>
     </header>
-    <router-view :map="map" style="height:calc(100% - 92px)"></router-view>
+    <keep-alive>
+      <router-view v-if="$route.meta.keepAlive" :map="map" style="height:calc(100% - 92px)"></router-view>
+    </keep-alive>
+    <router-view v-if="!$route.meta.keepAlive" :map="map" style="height:calc(100% - 92px)"></router-view>
+
     <footer v-show="$route.name!=='EventDetail'"></footer>
     <div class="map-box" :style="{zIndex:$route.name=='EventDetail'?'1':'-2'}">
       <div id="gaodeMap" :style="{zIndex:$route.name=='EventDetail'?'2':'-2'}"></div>
-      <div class="shadow" v-show="$route.name!=='EventDetail'">
-      
-      </div>
+      <div class="shadow" v-show="$route.name!=='EventDetail'"></div>
       <div class="shadow2" v-show="$route.name=='EventDetail'">
-          <div class="top"></div>
+        <div class="top"></div>
         <div class="right"></div>
         <div class="bottom"></div>
         <div class="left"></div>
@@ -37,29 +42,36 @@
     </div>
     <el-dialog title="帮助中心" :visible.sync="showHelpCenter">
       <div class="help-item">
-        <span>用户操作手册</span><a href="./doc/test.pdf"  download="test.pdf">下载</a>
+        <span>用户操作手册</span>
+        <a href="./doc/test.pdf" download="test.pdf">下载</a>
       </div>
-</el-dialog>
+    </el-dialog>
   </div>
 </template>
 
 
 
 <script>
-/* eslint-disable */ 
+/* eslint-disable */
+
 // import {
 //   // rtcInitSession,RtcSessionConfigKey,RtcLogLevel,
 //   rtcGetSdkVersion} from '../assets/sdk/api/rtc'
 import { getWeather } from "../api/api";
+import { get } from "../api/http";
 import AMap from "AMap";
 export default {
   data() {
+    console.log();
     return {
       nowTime: new Date(),
       nowWeather: "",
       bgPos: "",
       map: null,
-      showHelpCenter:false
+      showHelpCenter: false,
+      nowUser: sessionStorage.getItem("isLogin")
+        ? sessionStorage.getItem("isLogin")
+        : ""
     };
   },
   beforeCreate() {
@@ -67,24 +79,22 @@ export default {
       this.$router.push({ path: "/Login" });
     }
   },
-  created(){
+  created() {
     //       console.log( rtcGetSdkVersion());
     // setTimeout(() => {
     //   console.log( rtcGetSdkVersion())
-     
     // }, 5000);
-      
-
-   
+    this.initVideo();
+    // this.getTime();
   },
   beforeDestroy() {
     clearInterval(this.timer2);
   },
 
   mounted() {
-        let _this = this; // 声明一个变量指向Vue实例this，保证作用域一致
+    let _this = this; // 声明一个变量指向Vue实例this，保证作用域一致
     this.timer1 = setInterval(() => {
-      _this.nowTime = new Date();
+      _this.nowTime=new Date();
     }, 1000);
     this.updateWeather();
     this.timer2 = setInterval(
@@ -93,41 +103,55 @@ export default {
     );
     this.initGaodeMap();
   },
-  watch:{
-  $route(to){
-    if(to.name!=='EventDetail'){
-      // this.map.setCenter([105.397428, 35.90923]);
-       this.map.setZoom(12);
-          let markers = this.map.getAllOverlays("marker");
-          let circle=this.map.getAllOverlays("circle");
+  watch: {
+    $route(to) {
+      if (to.name !== "EventDetail") {
+        // this.map.setCenter([105.397428, 35.90923]);
+        this.map.setZoom(12);
+        let markers = this.map.getAllOverlays("marker");
+        let circle = this.map.getAllOverlays("circle");
         if (markers) {
           this.map.remove(markers);
         }
-         if (circle) {
+        if (circle) {
           this.map.remove(circle);
         }
+      }
     }
-  }
-},
+  },
   components: {},
   methods: {
     updateWeather() {
       getWeather().then(res => {
         if (res.ret == "ok") {
-          let { day, night, content, temperature } = res.content;
+          let { weathercode, weathercoden, weather, temp, tempn } = res.content;
           let nowHour = new Date().getHours(),
             imageIndex;
           if (nowHour >= 6 && nowHour < 18) {
-            imageIndex = day.split(".")[0];
+            imageIndex = weathercode.substr(1, 1);
           } else {
-            imageIndex = night.split(".")[0];
+            imageIndex = weathercoden.substr(1, 1);
           }
           this.bgPos = `-${(parseInt(imageIndex) % 12) * 80}px -${Math.floor(
             parseInt(imageIndex) / 12
           ) * 80}px`;
           this.nowWeather =
-            temperature.replace(/℃/g, "") + "度 " + content.split(" ")[1];
+            tempn.replace(/℃/, "") +
+            "~" +
+            temp.replace(/℃/, "") +
+            "度 " +
+            weather;
         }
+      });
+    },
+    getTime() {
+      let _this = this;
+      get("/taobaoapi/rest/api3.do?api=mtop.common.getTimestamp").then(res => {
+        _this.nowTime = parseInt(res.data.t);
+        // 声明一个变量指向Vue实例this，保证作用域一致
+        _this.timer1 = setInterval(() => {
+          _this.nowTime += 1000;
+        }, 1000);
       });
     },
     initGaodeMap() {
@@ -138,14 +162,123 @@ export default {
         resizeEnable: true,
         zoom: 12
       });
-  
+
       console.log(this.map);
     },
-    logout(){
+    logout() {
       sessionStorage.removeItem("isLogin");
-      localStorage.removeItem('smcHcUri');
-      localStorage.removeItem('smcHcPwd');  
-      this.$router.push('/Login');
+      localStorage.removeItem("smcHcUri");
+      localStorage.removeItem("smcHcPwd");
+      this.$router.push("/Login");
+    },
+    initVideo() {
+      let rtcSession = null;
+      let sessionCfg = {};
+      let mediaQuality = { video: {}, audio: {} };
+      sessionCfg[RtcSessionConfigKey.KEY_LOG_LEVEL] =
+        RtcLogLevel.RTC_LOG_LEVEL_ALL;
+      sessionCfg[RtcSessionConfigKey.KEY_MEDIA_TRANSPORT_TYPE] =
+        RtcTransportType.RTC_TRANSPORT_TYPE_UDP;
+      mediaQuality.video.quality = RtcVideoQuality.RTC_VIDEO_QUALITY_CIF;
+      mediaQuality.video.frameRate = 25;
+      mediaQuality.video.bitRateType =
+        RtcVideoBitrateType.RTC_VIDEO_BITRATE_TYPE_CONSTANT;
+      mediaQuality.audio.quality = RtcAudioQuality.RTC_AUDIO_QUALITY_HQ_HBR;
+      window.mediaQuality = mediaQuality;
+      rtcSession = rtcInitSession(
+        window.config.videoServiceIp,
+        this.sessionCallback,
+        sessionCfg
+      );
+      if (rtcSession === null) {
+        this.$message.error("视频监控服务初始化失败");
+      }
+    },
+    sessionCallback(result) {
+      const that = this;
+      let evtID = result["EventID"];
+      let isError = result["isError"];
+      if (isError) {
+        switch (evtID) {
+          case RtcCommonEventID.RTC_SESSION_CONNECTION_FAILED:
+            that.$message.error("监控服务器连接失败");
+            break;
+        }
+        return;
+      }
+      let serviceCallback = function(handler, event) {
+        if (event.isError) {
+          if (event.EventID === RtcCamEventID.RTC_CHANNEL_LOGIN_FAILED) {
+            that.$message.error("监控服务器登录失败");
+          } else if (
+            event.EventObj !== undefined &&
+            event.EventObj.request !== undefined
+          ) {
+            that.$message.error(
+              event.EventObj.request + "请求失败; \n原因：" + event.ErrReason
+            );
+          } else {
+            that.$message.error(event.ErrReason);
+          }
+          return;
+        }
+        switch (event.EventID) {
+          case RtcCamEventID.RTC_CHANNEL_CALL_INCOMING:
+            {
+              let callInfo = event.EventObj;
+              console.log(callInfo.peerName + "来电...");
+            }
+            break;
+
+          case RtcCamEventID.RTC_CHANNEL_LOCAL_NO_CAMERA:
+            that.$message.error("无摄像头");
+
+            break;
+          case RtcCamEventID.RTC_CHANNEL_LOCAL_NO_MICROPHONE:
+            that.$message.error("无麦克风");
+
+            break;
+          case RtcCamEventID.RTC_CHANNEL_CALL_OUTGOING:
+            {
+              console.log("呼叫中...");
+            }
+            break;
+          case RtcCamEventID.RTC_CHANNEL_CALL_ACCEPTING:
+            {
+              console.log("等待接听中...");
+            }
+            break;
+          case RtcCamEventID.RTC_CHANNEL_CALL_ACCEPTED:
+            {
+              let callInfo = event["EventObj"];
+              console.log("已接通" + callInfo.peerName);
+            }
+            break;
+        }
+      };
+      switch (evtID) {
+        case RtcCommonEventID.RTC_SESSION_INIT_SUCCESS:
+          rtcApplyService(
+            rtcSession,
+            RtcServiceType.RTC_SERVICE_TYPE_CAM,
+            serviceCallback
+          );
+          //... 可以申请更多服务
+          break;
+        case RtcCommonEventID.RTC_SERVICE_APPLY_SUCCESS:
+          console.log("EventID:" + evtID);
+          if (result.EventObj !== RtcServiceType.RTC_SERVICE_TYPE_CAM) {
+            that.$message.error("非视频监控服务!");
+            break;
+          }
+          break;
+        case RtcCommonEventID.RTC_SESSION_DESTROYED:
+          window.location.reload();
+          break;
+        default:
+          console.log("EventID:" + evtID);
+          break;
+      }
     }
   }
 };
@@ -251,62 +384,59 @@ footer {
     top: 0;
     left: 0;
     position: absolute;
-    background-color: rgba($color: #000000, $alpha:.5);
+    background-color: rgba($color: #000000, $alpha: 0.5);
     z-index: -1;
     width: 100%;
     height: 100%;
     box-shadow: black 0px 0px 60px 100px inset;
-
   }
-  .shadow2{
+  .shadow2 {
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     position: absolute;
-    &>div{
-      position:absolute;
+    & > div {
+      position: absolute;
       z-index: 3;
     }
-    .top{
-      top:0;
+    .top {
+      top: 0;
       width: 100%;
       height: 150px;
-     background-image: linear-gradient(black ,rgba(0, 0, 0, 0));
+      background-image: linear-gradient(black, rgba(0, 0, 0, 0));
     }
-    .right{
+    .right {
       right: 0;
       width: 380px;
       height: 100%;
-     background-image: linear-gradient(to left,black ,rgba(0, 0, 0, 0));
+      background-image: linear-gradient(to left, black, rgba(0, 0, 0, 0));
     }
-     .bottom{
+    .bottom {
       bottom: 0;
-       width: 100%;
+      width: 100%;
       height: 100px;
-     background-image: linear-gradient(to top,black ,rgba(0, 0, 0, 0));
+      background-image: linear-gradient(to top, black, rgba(0, 0, 0, 0));
     }
-     .left{
+    .left {
       left: 0;
-        width: 380px;
+      width: 380px;
       height: 100%;
-     background-image: linear-gradient(to right,black ,rgba(0, 0, 0, 0));
+      background-image: linear-gradient(to right, black, rgba(0, 0, 0, 0));
     }
   }
 }
-.help-item{
+.help-item {
   line-height: 40px;
-  color:white;
-  span{
-      display: inline-block;
-       width: 40%;
-       text-align: right;
+  color: white;
+  span {
+    display: inline-block;
+    width: 40%;
+    text-align: right;
   }
-  a{
+  a {
     margin-left: 100px;
-    color:#39BBFF;
-  
+    color: #39bbff;
   }
 }
-
 </style>

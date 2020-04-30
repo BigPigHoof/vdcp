@@ -63,7 +63,7 @@
       </div>
     </transition>
     <el-dialog title="发送短信" :visible.sync="showMsgBox">
-      <el-input type="textarea" :rows="2" v-model="msgInfo.zlnr"></el-input>
+      <el-input type="textarea" :rows="2" v-model="msgInfo.instructionContent"></el-input>
       <span slot="footer" class="dialog-footer">
         <el-button size="small" type="primary" :loading="isSending" @click="sendMsg">发 送</el-button>
       </span>
@@ -88,7 +88,7 @@ export default {
   props: ["map"],
   data() {
     return {
-      resourceTypes: ["SXT", "ZDRY", "ZBJQ", "CZLL", "ZDDW", "BXCS"],
+      resourceTypes: ["SXT", "ZBJQ", "CZLL", "ZDDW",],
       eventData: {},
       eventDynamicsData: [],
       top: 0,
@@ -103,7 +103,7 @@ export default {
       },
       showMsgBox: false,
       msgInfo:{
-        zlnr:'', zdbh:'', xtyh:'', sjid:this.$route.params.id
+       incidentId:this.$route.params.id, instructionContent:'', terminalCode:'', userCode:''
       },
       isSending:false
     };
@@ -585,14 +585,14 @@ export default {
       };
     },
     openMegBox(e,xtzh,bh) {
-      this.msgInfo.zdbh=bh;
-      this.msgInfo.xtyh=xtzh;
-      this.msgInfo.zlnr='';
+      this.msgInfo.terminalCode=bh;
+      this.msgInfo.userCode=xtzh;
+      this.msgInfo.instructionContent='';
       this.showMsgBox = true;
 
     },
     sendMsg() {
-      if(this.msgInfo.zlnr.trim()){
+      if(this.msgInfo.instructionContent.trim()){
         this.isSending=true;
          releaseInstructions(this.msgInfo).then(res=>{
               this.isSending=false;

@@ -12,8 +12,9 @@
 <script>
 import AMap from "AMap";
 import AMapUI from "AMapUI";
+import {get} from '../../api/http'
 export default {
-  props: ["address"],
+  props: ["address",'showForm'],
   data() {
     return {
       miniMap: null,
@@ -23,16 +24,33 @@ export default {
       searchName: ""
     };
   },
+  watch:{
+    showForm(val){
+      if(!val){
+        this.reset();
+      }
+    }
+  },
   mounted(){
       this.initMiniMap();
   },
   methods: {
     initMiniMap() {
+       const that=this;
       this.miniMap = new AMap.Map("miniMap", {
         mapStyle: "amap://styles/darkblue", //设置地图的显示样式
         resizeEnable: true,
         zoom: 10
       });
+      this.miniMap.on('click', e=>{
+        let parameters={
+          key:'1ebd4abbc27a1411331a30ae13570a11',
+          location:e.lnglat.lng+','+e.lnglat.lat
+        }
+        get('https://restapi.amap.com/v3/geocode/regeo',parameters).then(res=>{
+           that.$emit("getPosition", [e.lnglat.lng, e.lnglat.lat,res.regeocode.formatted_address]);
+        })
+       });
       this.initAMapUI();
       console.log(this.miniMap);
     },
@@ -49,7 +67,7 @@ export default {
           marker.setMap(map);
           marker.setPosition(poi.location);
           map.setCenter(poi.location);
-          that.$emit("getPosition", [poi.location.lng, poi.location.lat]);
+          that.$emit("getPosition", [poi.location.lng, poi.location.lat,poi.name]);
         });
       });
     },
@@ -60,6 +78,10 @@ export default {
         this.poiPicker.suggest(address);
         this.showAMapUI = true;
       }
+    },
+    reset(){
+      this.showAMapUI=false;
+      this.searchName='';
     }
   }
 };

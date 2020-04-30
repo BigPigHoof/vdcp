@@ -12,27 +12,31 @@
       <el-col :span="12" style="height:700px">
         <el-form class="form" :model="form" ref="form" label-width="140px" label-suffix="：">
           <el-form-item label="事件标题">
-            <el-input v-model="form.title" autocomplete="off"></el-input>
+            <el-input v-model="form.title" autocomplete="off" maxlength="200"></el-input>
           </el-form-item>
           <el-form-item label="关键字">
-            <el-input v-model="form.keyword" autocomplete="off"></el-input>
+            <el-input v-model="form.keyword" autocomplete="off" maxlength="200"></el-input>
           </el-form-item>
           <el-form-item label="事发详情">
-            <el-input type="textarea" :rows="4" placeholder="请输入内容" v-model="form.content"></el-input>
+            <el-input type="textarea" :rows="4" placeholder="请输入内容" v-model="form.content" maxlength="4000"></el-input>
           </el-form-item>
           <el-form-item label="详细地址">
-            <el-input v-model="form.address" autocomplete="off">
+            <el-input v-model="form.address" autocomplete="off" maxlength="255">
               <i slot="suffix" class="el-input__icon el-icon-search" @click="searchAddress"></i>
             </el-input>
           </el-form-item>
           <el-form-item class="half" label="经度">
-            <el-input v-model="form.longitude" autocomplete="off"
-             oninput ="value=value.replace(/[^0-9.]/g,'')"
+            <el-input
+              v-model="form.longitude"
+              autocomplete="off"
+              oninput="value=value.replace(/[^0-9.]/g,'')"
             ></el-input>
           </el-form-item>
           <el-form-item class="half" label="纬度">
-            <el-input v-model="form.latitude" autocomplete="off" 
-            oninput ="value=value.replace(/[^0-9.]/g,'')"
+            <el-input
+              v-model="form.latitude"
+              autocomplete="off"
+              oninput="value=value.replace(/[^0-9.]/g,'')"
             ></el-input>
           </el-form-item>
           <el-form-item class="half" label="事发时间">
@@ -50,10 +54,12 @@
             </el-select>
           </el-form-item>
           <el-form-item class="half" label="报警人">
-            <el-input v-model="form.alarmPersonName" autocomplete="off"></el-input>
+            <el-input v-model="form.alarmPersonName" autocomplete="off" maxlength="10"></el-input>
           </el-form-item>
-          <el-form-item class="half" label="报警人电话">
-            <el-input v-model="form.alarmPersonContact" autocomplete="off"></el-input>
+          <el-form-item class="half" label="报警人电话" prop="alarmPersonContact">
+            <el-input v-model="form.alarmPersonContact" autocomplete="off"
+               oninput="value=value.replace(/[^\d.]/g,'')" 
+            maxlength="11"></el-input>
           </el-form-item>
           <el-form-item class="half" label="事件类型">
             <el-select style="width:100%" v-model="form.type" placeholder="请选择">
@@ -132,47 +138,51 @@ export default {
       }
     },
     reset() {
-       for (const key in  this.form) {
-            this.form[key]=''
-         }
+      this.searchName='';
+       this.showAMapUI = false;
+      for (const key in this.form) {
+        this.form[key] = "";
+      }
     },
     onSubmit() {
       for (const key in this.form) {
-         if(!this.form[key]){
-           this.$message.warning('请填写完整');
-           return;
-         }
+        if (!this.form[key]) {
+          this.$message.warning("请填写完整");
+          return;
+        }
       }
       this.saving = true;
       addIncidentInfo(this.form).then(res => {
         this.saving = false;
         if (res.ret == "ok") {
           this.$message.success("保存成功");
-          this.$emit('refresh');
-          this.dialogFormVisible=false;
+          this.$emit("refresh");
+         this.$emit("update:dialogFormVisible", false);
         } else {
           this.$message.error(res.msg);
         }
       });
     },
     initMiniMap() {
-      const that=this;
+      const that = this;
       this.miniMap = new AMap.Map("miniMap", {
         mapStyle: "amap://styles/darkblue", //设置地图的显示样式
         resizeEnable: true,
         zoom: 10
       });
-       this.miniMap.on('click', e=>{
-        let parameters={
-          key:'1ebd4abbc27a1411331a30ae13570a11',
-          location:e.lnglat.lng+','+e.lnglat.lat
-        }
-        get('https://restapi.amap.com/v3/geocode/regeo',parameters).then(res=>{
-          that.form.address=res.regeocode.formatted_address;
-          that.form.longitude = e.lnglat.lng;
-          that.form.latitude = e.lnglat.lat;
-        })
-       });
+      this.miniMap.on("click", e => {
+        let parameters = {
+          key: "1ebd4abbc27a1411331a30ae13570a11",
+          location: e.lnglat.lng + "," + e.lnglat.lat
+        };
+        get("https://restapi.amap.com/v3/geocode/regeo", parameters).then(
+          res => {
+            that.form.address = res.regeocode.formatted_address;
+            that.form.longitude = e.lnglat.lng;
+            that.form.latitude = e.lnglat.lat;
+          }
+        );
+      });
       this.initAMapUI();
       console.log(this.miniMap);
     },
@@ -185,12 +195,12 @@ export default {
         });
         var marker = new AMap.Marker();
         that.poiPicker.on("poiPicked", function(poiResult) {
-          console.log(poiResult)
+          console.log(poiResult);
           var poi = poiResult.item;
           marker.setMap(map);
           marker.setPosition(poi.location);
           map.setCenter(poi.location);
-           that.form.address=poiResult.item.name;
+          that.form.address = poiResult.item.name;
           that.form.longitude = poi.location.lng;
           that.form.latitude = poi.location.lat;
         });

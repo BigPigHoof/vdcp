@@ -69,6 +69,7 @@ const routes = [
         path:'/VideoMonitor',
         meta: {
           title: '视频监控',
+          keepAlive: true // 需要被缓存
         },
         component: () => import('./components/VideoMonitor/Index'),
       },
@@ -123,6 +124,14 @@ const routes = [
             component: () => import('./components/SystemMaintenance/ChangePassword'),
             meta: {
               title: '系统维护-修改密码'
+            },
+          },
+          {
+            path: 'AccountManagement',//以“/”开头的嵌套路径会被当作根路径，所以子路由上不用加“/”;在生成路由时，主路由上的path会被自动添加到子路由之前，所以子路由上的path不用在重新声明主路由上的path了。
+            name: 'AccountManagement',
+            component: () => import('./components/SystemMaintenance/AccountManagement/Index'),
+            meta: {
+              title: '系统维护-账户管理'
             },
           },
   

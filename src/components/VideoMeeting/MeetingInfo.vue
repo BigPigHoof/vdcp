@@ -441,7 +441,7 @@ export default {
           if (this.meetingId == meetId) {
             this.meetingId = "";
             console.log(this.sites);
-            this.sites = [[], []];
+            this.sites = [];
             this.show=false;
             console.log(this.sites);
           }

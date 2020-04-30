@@ -1,7 +1,7 @@
 <!--  -->
 <template>
   <div>
-    <div class="search-bar">
+    <div class="search-bar" style="margin-bottom:20px;">
       <el-row :gutter="30" style="margin-bottom:20px;">
         <el-col :span="6">
           <label for="name" class>名称：</label>
@@ -81,7 +81,7 @@
         <el-col :span="6"></el-col>
       </el-row>
     </div>
-    <el-button style="margin:20px 0;" type="primary" size="small" @click="openAddForm">新增</el-button>
+    <el-button v-if="$store.state.hasCompetence" style="margin-bottom:20px;" type="primary" size="small" @click="openAddForm">新增</el-button>
     <el-table
       :data="tableData"
       v-loading="loading"
@@ -95,11 +95,11 @@
       <el-table-column prop="sjjgmc" label="上级机构"></el-table-column>
       <el-table-column prop="administrativeDivision.xzqhmc" label="所属行政区域"></el-table-column>
 
-      <el-table-column label="操作">
+      <el-table-column v-if="$store.state.hasCompetence" label="操作">
         <template slot-scope="scope">
           <span class="option" @click="openEditForm(scope.row)">修改</span>
           <el-popconfirm title="确定删除吗？" @onConfirm="deleteItem(scope.row)">
-            <span class="option"  slot="reference">删除</span>
+            <span  class="option"  slot="reference">删除</span>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -283,19 +283,7 @@ export default {
   border-radius: 6px;
 }
 
-.search-bar {
-  label {
-    display: inline-block;
-    width: 140px;
-    text-align: right;
-  }
-  .el-input,
-  .el-cascader,
-  .el-autocomplete,
-  .el-select {
-    width: 250px;
-  }
-}
+
 .option {
   color: #30c7ff;
   margin-right: 20px;

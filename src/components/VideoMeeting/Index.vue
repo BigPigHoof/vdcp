@@ -22,7 +22,7 @@
         </template>
       </TabView>
       <el-row style="margin-top:60px;">
-        <el-col :span="12">
+        <el-col :span="12" style="display:none">
           <div class="passageway">
             <label for="passageway">通道数:</label>
             <select name="passageway" id="passageway" v-model="passageway">
@@ -54,7 +54,10 @@
         <div class="mid-content">
           <transition-group name="el-fade-in-linear">
             <div class="tree-chart" id="treeChart" v-show="nowMidTab=='tree'" key="tree"></div>
-            <TransTest v-show="nowMidTab=='video'" key="video"></TransTest>
+              
+            <TransTest v-show="nowMidTab=='video2'" key="video2">
+  
+            </TransTest>
           </transition-group>
           
             <!-- <transition name="el-fade-in-linear">
@@ -235,7 +238,7 @@ export default {
           name,
           mainSiteUri,
           sites,
-          monitorChannelCount: this.passageway,
+          // monitorChannelCount: this.passageway,
           contacts: this.$refs.contact.selectedContacts,
           rate: "1920k"
         };

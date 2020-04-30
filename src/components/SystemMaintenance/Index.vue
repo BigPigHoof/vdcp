@@ -14,9 +14,9 @@
           <div></div>
           <span>人员管理</span>
         </router-link>
-        <router-link to="ChangePassword"  class="change-password" :class="{active:$route.name==='ChangePassword'}">
+        <router-link to="AccountManagement"  class="change-password" :class="{active:$route.name==='AccountManagement'}">
           <div></div>
-          <span>修改密码</span>
+          <span>账户管理</span>
         </router-link>
       </div>
       <router-view class="main-content"></router-view>
@@ -34,7 +34,7 @@ export default {
   components: { Nav }
 };
 </script>
-<style lang="scss" scoped>
+<style lang="scss" >
 @mixin bg($url) {
   background: url($url) no-repeat;
   background-size: contain;
@@ -121,6 +121,37 @@ export default {
       width: calc(100% - 140px);
       height: 850px;
       box-sizing: border-box;
+      .search-bar {
+  label {
+    display: inline-block;
+    width: 140px;
+    text-align: right;
+  }
+  .el-input,
+  .el-cascader,
+  .el-autocomplete,
+  .el-select {
+    width: calc(100% - 140px);
+    .el-input{
+      width: 100%;
+    }
+  }
+}
+.function {
+  margin: 20px 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .el-checkbox {
+    color: white;
+  }
+  button {
+    margin-left: 20px;
+    min-width: 70px;
+  }
+}
     }
   }
 }

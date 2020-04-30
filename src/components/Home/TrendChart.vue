@@ -2,7 +2,7 @@
 <template>
   <div class="trend-analysis">
     <div class="module-head">
-      <h5 class="module-title">本周事件</h5>
+      <h5 class="module-title">趋势分析</h5>
       <div class="change-box">
         <span :class="{choosed:dateArea=='yy'}" @click="getTrend('yy')">年统计</span>
         <span :class="{choosed:dateArea=='mm'}" @click="getTrend('mm')">月统计</span>
@@ -15,7 +15,7 @@
         <span>{{eventTotalNum}}</span>
       </el-col>
       <el-col :span="12">
-        <span>本周新案件量：</span>
+        <span>新案件量：</span>
         <span>{{eventAddNum}}</span>
       </el-col>
     </el-row>
@@ -146,7 +146,7 @@ export default {
         maskColor: "rgba(255, 255, 255, 0)",
         zlevel: 0
       });
-      getIncidentsAnalysis({ dateArea, region: this.region }).then(res => {
+      getIncidentsAnalysis({ dateRange:dateArea, regionCode: this.region }).then(res => {
         this.chart.hideLoading();
         if (res.ret == "ok") {
           this.eventTotalNum = res.content.totalCount;

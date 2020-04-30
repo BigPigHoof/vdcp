@@ -2,12 +2,14 @@ import { get,post } from './http'
 const ip=window.config.apiIp;
 export const getWeather=()=>get(ip+'/resources/queryWeatherInfo');
 export const login=(params)=>post(ip+'/doLogin',params);
-export const getWeekIncident=()=>get(ip+'/incident/queryIncidentsOfWeek');
+export const queryOrgByPersonCode=(params)=>get(ip+'/person/queryOrgByPersonCode',params);
+export const getWeekIncident=()=>get(ip+'/incident/queryIncidentsOfMonth');
 export const getIncidentsAnalysis=(params)=>get(ip+'/incident/queryIncidentsAnalysisOfRegion',params);
 export const queryMonitorSortInfo=()=>get(ip+'/resources/monitor/queryMonitorSortInfo');
 export const queryEmergencyResourcesInfo=()=>get(ip+'/resources/queryEmergencyResourcesInfo');
 export const addIncidentInfo=(params)=>post(ip+'/incident/addIncidentInfo',params);
 export const releaseInstructions=(params)=>post(ip+'/command/releaseInstructions',params);
+export const querySpecialAttentionMonitors=()=>get(ip+'/menu/querySpecialAttentionMonitors');
 export const loginInSmc=()=>post(ip+'/inner/smc/loginSMC');
 export const getAllSites=()=>get(ip+'/inner/smc/getAllSites');
 export const startMeeting=(params)=>post(ip+'/inner/smc/StartMeeting',params);

@@ -31,15 +31,15 @@
           </el-select>
         </el-col>
         <el-col :span="6">
-          <label for="code">职务：</label>
-          <el-input size="small" id="code" v-model="searchInfo.zw"></el-input>
+          <label for="duty">职务：</label>
+          <el-input size="small" id="duty" v-model="searchInfo.zw"></el-input>
         </el-col>
       </el-row>
     </div>
     <div class="function">
       <el-checkbox @change="filterUser" v-model="isChecked">只显示有账号的用户账号名</el-checkbox>
       <div class="btns">
-        <el-button type="primary" size="small" @click="openPersonForm('add')">新增</el-button>
+        <el-button v-if="$store.state.hasCompetence" type="primary" size="small" @click="openPersonForm('add')">新增</el-button>
         <el-button type="primary" size="small" @click="getPersons(searchInfo)">查询</el-button>
       </div>
     </div>
@@ -55,7 +55,8 @@
       <el-table-column prop="yddh" label="移动电话"></el-table-column>
       <el-table-column prop="zzjgmc" label="所属机构"></el-table-column>
       <el-table-column prop="xtzh" label="已有账号"></el-table-column>
-      <el-table-column label="操作">
+         <el-table-column prop="zw" label="职务"></el-table-column>
+      <el-table-column v-if="$store.state.hasCompetence" label="操作">
         <template slot-scope="scope">
           <span class="option" @click="openAssignForm(scope.row)">分配</span>
           <span class="option" @click=" openPersonForm('edit',scope.row)">修改</span>
@@ -66,7 +67,29 @@
       </el-table-column>
     </el-table>
     <PersonForm :show.sync="showPersonForm" ref="personForm" :title="formTitle" :form="formData" @refresh="getPersons"></PersonForm>
-    <AssignForm :show.sync="showAssignForm" :person="person" ref="assignForm" @refresh="getPersons"></AssignForm>
+    <AssignForm :show="false" :person="person" ref="assignForm" @refresh="getPersons"></AssignForm>
+     <el-dialog title="分配用户" :visible.sync="showAssignForm" width="40%" @close="accountCode=null">
+       <div>
+          <label for="accountCode">账号编码：</label>
+          <el-select
+          id="accountCode"
+            size="small"
+            v-model="accountCode"
+            filterable
+            clearable
+
+          >
+            <el-option
+              label="管理员"
+              value="admin"
+            ></el-option>
+          </el-select>
+       </div>
+        <div slot="footer" style="text-align:center;">
+    <el-button @click="showAssignForm = false">取 消</el-button>
+    <el-button type="primary" @click="showAssignForm = false">确 定</el-button>
+  </div>
+     </el-dialog>
   </div>
 </template>
 
@@ -109,7 +132,8 @@ export default {
         zylb: null,
         cyzc: null,
         tx: null
-      }
+      },
+      accountCode:null
     };
   },
   created() {
@@ -162,7 +186,15 @@ export default {
     },
 
     formatterSex(row) {
-      return row.xb ? "男" : "女";
+      if(row.xb==0){
+        return '女'
+      }
+       else if(row.xb==1){
+        return '男'
+      }else{
+        return '';
+      }
+      
     },
     openPersonForm(type, item) {
       if (type == "add") {
@@ -195,34 +227,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.search-bar {
-  label {
-    display: inline-block;
-    width: 140px;
-    text-align: right;
-  }
-  .el-input,
-  .el-cascader,
-  .el-autocomplete,
-  .el-select {
-    width: calc(100% - 140px);
-  }
-}
-.function {
-  margin: 20px 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 
-  .el-checkbox {
-    color: white;
-  }
-  button {
-    margin-left: 20px;
-    min-width: 70px;
-  }
-}
 .option {
   color: #30c7ff;
   margin-right: 20px;

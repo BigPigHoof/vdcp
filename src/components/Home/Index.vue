@@ -4,7 +4,7 @@
     <div class="left">
       <div class="week-event">
         <div class="module-head">
-          <h5 class="module-title">本周事件</h5>
+          <h5 class="module-title">当前案件</h5>
           <i class="iconfont iconxinzengshijianchuzhi" @click="showAddEvent=true"></i>
         </div>
         <el-input class="search-input" v-model="searchValue">
@@ -51,11 +51,18 @@
           <span class="focus">重点预案</span>
         </div>
 
-        <div id="videoDiv" class="video-box">
-          <div id="video0"></div>
-          <div id="video1"></div>
-          <div id="video2"></div>
-          <div id="video3"></div>
+        <div class="video-box">
+             <div
+        :id="'vframe_'+index"
+        v-for="(num,index) in 4"
+        :key="num"
+      >
+        <video      
+          autoplay
+          playsinline
+          :id="'video_'+index"
+        ></video>
+      </div>
         </div>
       </div>
     </div>
@@ -73,7 +80,8 @@ import TrendChart from "./TrendChart";
 import {
   getWeekIncident,
   queryMonitorSortInfo,
-  queryEmergencyResourcesInfo
+  queryEmergencyResourcesInfo,
+  querySpecialAttentionMonitors
 } from "../../api/api";
 export default {
   data() {
@@ -87,6 +95,7 @@ export default {
         XLGC: null,
         KJFT: null
       },
+      monitors:[],
       showAddEvent: false
     };
   },
@@ -95,12 +104,13 @@ export default {
   mounted() {
     this.getWeekEvent();
     this.initBarChart();
+    this.getAttentionMonitors();
     queryMonitorSortInfo().then(res => {
       if (res.ret == "ok") {
         this.monitorInfo = res.content;
       }
     });
-    new Error('caonima')
+   
   },
   methods: {
     getWeekEvent() {
@@ -273,7 +283,70 @@ export default {
           barChart.setOption(option);
         }
       });
-    }
+    },
+    getAttentionMonitors(){
+      querySpecialAttentionMonitors().then(res=>{
+        const filterMonitors=data=>{
+          if(this.monitors.length>4){
+            return;
+          }
+          if(data.monitors.length>0){
+            this.monitors=this.monitors.concat(data.monitors);
+          }
+          if(data.children.length>0){
+            filterMonitors(data.children);
+          }
+        }
+        if(res.ret=='ok'){
+          filterMonitors(res.content);
+          console.log(this.monitors);
+          this.monitors.forEach((item,index) => {
+             this.playVideo(index,item.code);
+          });
+        }
+      })
+    },
+     playVideo(index,code) {
+       /* eslint-disable */
+      let mediaQuality=window.mediaQuality;
+      let loading = this.$loading({
+        target: document.querySelector("#vframe_" + index),
+        lock: true,
+        text: "加载中",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0)",
+        fullscreen: false
+      });
+      let chCallback = function(handler, event) {
+        switch (event.EventID) {
+
+          case RtcCamEventID.RTC_CHANNEL_REMOTE_STREAM_INCOMING:
+            {
+              let streamObj = event["EventObj"];
+              rtcAttachStream(document.querySelector("#video_" + index), streamObj);
+              loading.close();
+            }
+            break;
+
+          case RtcCamEventID.RTC_CHANNEL_REMOTE_CONNECT_FAIL:
+            if (event.EventObj !== undefined) {
+              console.log(userName + ": 未接通");
+            }
+            break;
+          case RtcCamEventID.RTC_CHANNEL_REMOTE_DISCONNECT:
+            if (event.EventObj !== undefined) {
+              console.log(userName + ": 已退出");
+            }   
+            break;
+        }
+      };
+      rtcCamOpenStream(
+        "0" + code,
+        RtcMediaType.RTC_MEDIA_TYPE_AUDIO_VIDEO,
+        { mediaQuality },
+        chCallback
+      );
+    },
   }
 };
 </script>
@@ -373,6 +446,8 @@ export default {
       }
       & > video {
         width: 100%;
+        height:100%; 
+        object-fit: fill
       }
     }
   }

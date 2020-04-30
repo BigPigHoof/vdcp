@@ -117,7 +117,10 @@ $bgnames: "单位", "专家", "仓库", "物资", "车辆", "移动终端", "单
   .el-cascader,
   .el-autocomplete,
   .el-select {
-    width: 250px;
+    width: calc(100% - 140px);
+    .el-input{
+      width: 100%;
+    }
   }
 }
 .option {

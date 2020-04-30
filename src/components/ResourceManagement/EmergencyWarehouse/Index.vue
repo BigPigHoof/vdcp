@@ -1,7 +1,7 @@
 <!--  -->
 <template>
   <div>
-    <div class="search-bar">
+    <div class="search-bar" style="margin-bottom:20px;">
       <el-row :gutter="30" style="margin-bottom:20px;">
         <el-col :span="6">
           <label for="name" class>名称：</label>
@@ -56,7 +56,7 @@
         </el-col>
       </el-row>
     </div>
-    <el-button style="margin:20px 0;" type="primary" size="small" @click="openForm('add')">新增</el-button>
+    <el-button v-if="$store.state.hasCompetence" style="margin-bottom:20px;" type="primary" size="small" @click="openForm('add')">新增</el-button>
     <el-table
       :data="tableData"
       v-loading="loading"
@@ -68,7 +68,7 @@
       <el-table-column prop="cfdd" label="地址"></el-table-column>
       <el-table-column prop="ssdwmc" label="所属单位"></el-table-column>
       <el-table-column prop="xzqy" label="所属行政区域"></el-table-column>
-      <el-table-column label="操作">
+      <el-table-column v-if="$store.state.hasCompetence" label="操作">
         <template slot-scope="scope">
           <span class="option" @click="openForm('edit',scope.row)">修改</span>
           <el-popconfirm title="确定删除吗？" @onConfirm="deleteItem(scope.row.id)">
@@ -226,7 +226,7 @@
           </el-form>
         </el-col>
         <el-col :span="12">
-          <MiniMap :address="this.form.cfdd" ref="miniMap" @getPosition="setPosition"></MiniMap>
+          <MiniMap :address="this.form.cfdd" :showForm="showForm" ref="miniMap" @getPosition="setPosition"></MiniMap>
         </el-col>
       </el-row>
     </el-dialog>
@@ -415,9 +415,10 @@ changeCheck(val){
     },
     setPosition(pos) {
       if (Array.isArray(pos)) {
-        if (pos.length == 2) {
+        if (pos.length == 3) {
           this.form.jd = pos[0];
           this.form.wd = pos[1];
+          this.form.cfdd=pos[2];
         }
       }
     }

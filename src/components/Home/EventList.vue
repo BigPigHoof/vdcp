@@ -16,7 +16,7 @@
             <span class="circle"></span>
           </div>
           <div class="bottom">
-            <span class="time">{{item.occurrTime}}</span>
+            <span class="time">{{item.occuredTime}}</span>
             <span class="state">{{state[item.state]}}</span>
           </div>
         </div>

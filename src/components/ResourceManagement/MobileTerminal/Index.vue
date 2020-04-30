@@ -1,7 +1,7 @@
 <!--  -->
 <template>
   <div>
-    <div class="search-bar">
+    <div class="search-bar" style="margin-bottom:20px;">
       <el-row :gutter="30" style="margin-bottom:20px;">
         <el-col :span="6">
           <label for="name" class>名称：</label>
@@ -28,7 +28,7 @@
           ></el-cascader>
         </el-col>
         <el-col :span="6">
-          <el-button type="primary" size="small" @click="search" style="margin-left:50px">查询</el-button>
+          <el-button  type="primary" size="small" @click="search" style="margin-left:50px">查询</el-button>
         </el-col>
       </el-row>
       <el-row :gutter="30">
@@ -56,7 +56,7 @@
         </el-col>
       </el-row>
     </div>
-    <el-button style="margin:20px 0;" type="primary" size="small" @click="openForm('add')">新增</el-button>
+    <el-button v-if="$store.state.hasCompetence" style="margin-bottom:20px;" type="primary" size="small" @click="openForm('add')">新增</el-button>
     <el-table
       :data="tableData"
       v-loading="loading"
@@ -68,7 +68,7 @@
       <el-table-column prop="bm" label="编码"></el-table-column>
       <el-table-column prop="zn" label="职能"></el-table-column>
       <el-table-column prop="zrdwmc" label="责任单位"></el-table-column>
-      <el-table-column label="操作">
+      <el-table-column v-if="$store.state.hasCompetence" label="操作">
         <template slot-scope="scope">
           <span class="option" @click="openForm('edit',scope.row)">修改</span>
           <el-popconfirm title="确定删除吗？" @onConfirm="deleteItem(scope.row.id)">

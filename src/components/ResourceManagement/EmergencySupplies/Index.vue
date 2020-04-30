@@ -1,7 +1,7 @@
 <!--  -->
 <template>
   <div>
-    <div class="search-bar">
+    <div class="search-bar" style="margin-bottom:20px;">
       <el-row :gutter="30" style="margin-bottom:20px;">
         <el-col :span="6">
           <label for="name" class>名称：</label>
@@ -72,7 +72,7 @@
         <el-col :span="6"></el-col>
       </el-row>
     </div>
-    <el-button style="margin:20px 0;" type="primary" size="small" @click="openForm('add')">新增</el-button>
+    <el-button v-if="$store.state.hasCompetence" style="margin-bottom:20px;" type="primary" size="small" @click="openForm('add')">新增</el-button>
     <el-table
       :data="tableData"
       v-loading="loading"
@@ -82,9 +82,9 @@
     >
       <el-table-column prop="mc" label="名称"></el-table-column>
       <el-table-column prop="bm" label="编码"></el-table-column>
-      <el-table-column prop="cfdck" label="所在仓库"></el-table-column>
+      <el-table-column prop="cfdckmc" label="所在仓库"></el-table-column>
       <el-table-column prop="xzqy" label="存放行政区域"></el-table-column>
-      <el-table-column label="操作">
+      <el-table-column v-if="$store.state.hasCompetence" label="操作">
         <template slot-scope="scope">
           <span class="option" @click="openForm('edit',scope.row)">修改</span>
           <el-popconfirm title="确定删除吗？" @onConfirm="deleteItem(scope.row.id)">
@@ -122,16 +122,16 @@
         </el-form-item>
         <el-form-item
           label="存放地仓库"
-          prop="cfdck"
+          prop="cfdckid"
           :label-width="formLabelWidth"
           :rules="[{ required: true, message: '请选择存放地仓库' }]"
         >
-          <el-select v-model="form.cfdck" filterable clearable>
+          <el-select v-model="form.cfdckid" filterable clearable>
             <el-option
               v-for="item in warehousesData"
               :key="item.id"
               :label="item.mc"
-              :value="item.mc"
+              :value="item.id"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -307,7 +307,7 @@ export default {
     deleteItem(wzid) {
       deleteEmergencySupplies({ wzid }).then(res => {
         if (res.ret == "ok") {
-          this.getEmergencyUnit({});
+          this.getEmergencySupplies({});
         } else {
           this.$message.error(res.msg);
         }
@@ -316,7 +316,7 @@ export default {
     openForm(type, data) {
       if (type == "add") {
         this.form = {
-          cfdck: null,
+          cfdckid: null,
           ggxh: null,
           mc: null,
           bm: null,

@@ -31,7 +31,7 @@
               <el-select
                 autocomplete="off"
                 v-model="form.jgid"
-                filterable       
+                filterable
                 clearable
                 :loading="isSearchingAgency"
               >
@@ -51,16 +51,16 @@
             </el-form-item>
             <el-form-item class="half" label="性别" prop="xb" :label-width="formLabelWidth">
               <el-select autocomplete="off" v-model="form.xb">
-                <el-option value="0" label="女"></el-option>
-                <el-option value="1" label="男"></el-option>
+                <el-option :value="0" label="女"></el-option>
+                <el-option :value="1" label="男"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item class="half" label="政治面貌" prop="zzmm" :label-width="formLabelWidth">
               <el-select autocomplete="off" v-model="form.zzmm">
-                <el-option value="1" label="中共党员"></el-option>
-                <el-option value="2" label="中共预备党员"></el-option>
-                <el-option value="3" label="共青团员"></el-option>
-                <el-option value="4" label="群众"></el-option>
+                <el-option :value="1" label="中共党员"></el-option>
+                <el-option :value="2" label="中共预备党员"></el-option>
+                <el-option :value="3" label="共青团员"></el-option>
+                <el-option :value="4" label="群众"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item class="half" label="移动电话" prop="yddh" :label-width="formLabelWidth">
@@ -123,27 +123,46 @@ export default {
       ip: window.config.apiIp
     };
   },
-  mounted(){
+  mounted() {
     this.searchAgency();
   },
   methods: {
     closeForm() {
+      this.imgSrc = null;
       this.$emit("update:show", false);
     },
     handleAvatarSuccess(res, file) {
-      this.isUploading = false;
+      const that = this;
+
       if (res.ret == "ok") {
-        this.form.tx = res.content;
-        this.imgSrc = URL.createObjectURL(file.raw);
+        var reader = new FileReader();
+        reader.onload = async function(e) {
+          var data = e.target.result;
+          //加载图片获取图片真实宽度和高度
+          var image = new Image();
+          image.onload = async function() {
+            that.isUploading = false;
+            if (image.width != 240 || image.height != 240) {
+              that.$message.error("上传头像图片分辨率只能是240*240！");
+              console.log(image.width)
+              return;
+            } else {
+              that.form.tx = res.content;
+              that.imgSrc = URL.createObjectURL(file.raw);
+            }
+          };
+          image.src = data;
+        };
+        reader.readAsDataURL(file.raw);
       } else {
+        that.isUploading = false;
         this.$message.error(res.msg);
       }
-      console.log(this.imageUrl);
     },
-    beforeAvatarUpload(file) {
+     beforeAvatarUpload(file) {
       const isJPG = file.type === "image/jpeg" || file.type === "image/png";
       const isLt2M = file.size / 1024 / 1024 < 2;
-
+ 
       if (!isJPG) {
         this.$message.error("上传头像图片只能是 JPG、PNG 格式!");
       }
@@ -153,7 +172,22 @@ export default {
       if (isJPG && isLt2M) {
         this.isUploading = true;
       }
+
       return isJPG && isLt2M;
+    },
+    async checkImgWH(file) {
+      //读取图片数据
+      var reader = new FileReader();
+      reader.onload = async function(e) {
+        var data = e.target.result;
+        //加载图片获取图片真实宽度和高度
+        var image = new Image();
+        image.onload = async function() {
+          return image.width != 240 && image.height != 240;
+        };
+        image.src = data;
+      };
+      await reader.readAsDataURL(file);
     },
     searchAgency() {
       this.isSearchingAgency = true;
@@ -175,7 +209,7 @@ export default {
             this.isSaving = false;
             if (res.ret == "ok") {
               this.$message.success("保存成功");
-              this.$emit('refresh',{});
+              this.$emit("refresh", {});
               this.closeForm();
             } else {
               this.$message.error(res.msg);

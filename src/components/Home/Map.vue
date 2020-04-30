@@ -3,9 +3,9 @@
   <div class="map-content">
     <div class="map" id="map"></div>
     <div class="trend-box" :style="{left,top}" v-show="showTrend">
-      <h5 class="title">{{regionArea}}</h5>
+      <h5 class="title ellipsis">{{regionArea}}</h5>
       <div class="trend-content">
-        <TrendChart :region="regionArea" chartId="trend2"></TrendChart>
+        <TrendChart :region="regionCode" chartId="trend2" ref="trend"></TrendChart>
       </div>
     </div>
   </div>
@@ -94,10 +94,7 @@ const mapOption = {
       aspectScale: 1,
       // left:'10%',
       data: [
-        {
-          name: "嘉定区",
-          value: 75
-        }
+       
       ],
       label: {
         show: true,
@@ -126,7 +123,8 @@ export default {
       mapChart: null,
       mapOption,
       mapName: window.config.mapName,
-      regionArea: "BS",
+      regionArea: "",
+      regionCode:'',
       showTrend: false,
       left: 0,
       top: 0
@@ -164,8 +162,11 @@ export default {
         get('https://restapi.amap.com/v3/geocode/regeo',parameters).then(res=>{
           console.log(res)
         })
+        that.regionCode=params.data.adCode;
+         that.regionArea=params.name;
         that.left = offsetX - 180 + "px";
         that.top = offsetY < 340 ? offsetY + 20 + "px" : offsetY - 350 + "px";
+        that.$refs.trend.getTrend(that.$refs.trend.dateArea);
         that.showTrend = true;
       });
       this.mapChart.getZr().on("click", () => {
@@ -178,6 +179,12 @@ export default {
       //   this.$echarts.registerMap(this.mapName, jsonData);
       //   this.mapChart.setOption(this.mapOption);
       get(`./map/${this.mapName}.json`).then(jsonData => {
+        console.log(jsonData);
+        this.mapOption.series[1].data=jsonData.features.map(item=>({
+          name:item.properties.name,
+          adCode:item.properties.adcode,
+          parentCode:item.properties.parent.adcode
+        }))
         this.mapChart.hideLoading();
         this.$echarts.registerMap(this.mapName, jsonData);
         this.mapChart.setOption(this.mapOption);
@@ -203,6 +210,7 @@ export default {
     background-size: contain;
     .title {
       width: 104px;
+      height: 44px;
       margin-left: 8px;
       line-height: 44px;
       font-size: 18px;

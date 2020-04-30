@@ -26,14 +26,13 @@
 
     <el-collapse-transition>
       <div class="item" v-if="isFolder" v-show="open">
-        <ul class="menu">
+        <ul class="menu" v-if="model.children.length">
           <PlanList v-for="(item) in model.children" :model="item" :key="item.id"></PlanList>
         </ul>
         <ul class="site">
           <li v-for="item in model.monitors" :key="item.uri">
-            <div class="left">
-              <span class="dot"></span>
-              <!-- <span class="state" :class="getStatus(item)"></span> -->
+            <div class="left" @dblclick="bus.$emit('openVideo',item.code)">
+              <span class="dot"></span>    
               <span class="name ellipsis" :title="item.name">{{item.name}}</span>
             </div>
             <div class="right">
@@ -67,7 +66,7 @@ export default {
     isFolder() {
       return (
         (this.model.children && this.model.children.length) ||
-        (this.model.sites && this.model.sites.length)
+        (this.model.monitors && this.model.monitors.length)
       );
     }
   },
