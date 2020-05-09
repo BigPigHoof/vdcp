@@ -12,7 +12,7 @@
         </el-input>
         <EventList id="eventList" :listData="weekEventData"></EventList>
       </div>
-      <TrendChart region chartId="trend1"></TrendChart>
+      <TrendChart :region="regionCode" chartId="trend1"></TrendChart>
     </div>
     <div class="mid">
       <Nav></Nav>
@@ -52,26 +52,17 @@
         </div>
 
         <div class="video-box">
-             <div
-        :id="'vframe_'+index"
-        v-for="(num,index) in 4"
-        :key="num"
-      >
-        <video      
-          autoplay
-          playsinline
-          :id="'video_'+index"
-        ></video>
-      </div>
+          <div :id="'vframe_'+index" v-for="(num,index) in 4" :key="num">
+            <video autoplay playsinline :id="'video_'+index"></video>
+          </div>
         </div>
       </div>
     </div>
-    <AddEvent :dialogFormVisible.sync="showAddEvent"  @refresh="getWeekEvent"></AddEvent>
+    <AddEvent :dialogFormVisible.sync="showAddEvent" @refresh="getWeekEvent"></AddEvent>
   </div>
 </template>
 
 <script>
-
 import Nav from "../Nav";
 import Map from "./Map";
 import EventList from "./EventList";
@@ -83,11 +74,20 @@ import {
   queryEmergencyResourcesInfo,
   querySpecialAttentionMonitors
 } from "../../api/api";
+const resourceTypes = {
+  unit: "应急单位",
+  expert: "应急专家",
+  vehicle: "应急车辆",
+  warehouse: "应急仓库",
+  supplies: "应急物资",
+  mobileTerminal: "移动终端",
+  singleTransmission: "单兵图传"
+};
 export default {
   data() {
     return {
       searchValue: "",
-      allweekEventData:[],
+      allweekEventData: [],
       weekEventData: [],
       monitorInfo: {
         JSJK: null,
@@ -95,8 +95,8 @@ export default {
         XLGC: null,
         KJFT: null
       },
-      monitors:[],
-      showAddEvent: false
+      showAddEvent: false,
+      regionCode: window.config.regionCode
     };
   },
 
@@ -110,7 +110,6 @@ export default {
         this.monitorInfo = res.content;
       }
     });
-   
   },
   methods: {
     getWeekEvent() {
@@ -124,17 +123,19 @@ export default {
       getWeekIncident().then(res => {
         loading.close();
         if (res.ret == "ok") {
-          this.allweekEventData=res.content;
+          this.allweekEventData = res.content;
           this.weekEventData = res.content;
         }
       });
     },
-    searchEvent(){
-      if(this.searchValue){
-        this.weekEventData=this.allweekEventData.filter(item=>item.title.indexOf(this.searchValue)>-1);
-        console.log(this.weekEventData)
-      }else{
-         this.weekEventData=this.allweekEventData;
+    searchEvent() {
+      if (this.searchValue) {
+        this.weekEventData = this.allweekEventData.filter(
+          item => item.title.indexOf(this.searchValue) > -1
+        );
+        console.log(this.weekEventData);
+      } else {
+        this.weekEventData = this.allweekEventData;
       }
     },
     initBarChart() {
@@ -152,6 +153,7 @@ export default {
         yAxis: {
           type: "category",
           show: true,
+          inverse: true,
           data: [],
           axisLine: {
             show: false
@@ -173,7 +175,7 @@ export default {
             name: "item",
             type: "bar",
             data: [],
-            barWidth: 20,
+            barWidth: 38,
             itemStyle: {
               color: function(params) {
                 const colors = [
@@ -212,14 +214,14 @@ export default {
               show: true,
               color: "#373737",
               fontSize: 18,
-              padding: [4, 0, 0, 0],
+              padding: [4, 0, 0, 10],
               position: "insideLeft",
               formatter: params => {
-                if (params.data.availablecount) {
-                  return (
-                    params.data.availablecount + "/" + params.data.totalcount
-                  );
-                }
+                // if (params.data.availableCount) {
+                return (
+                  params.data.availableCount + "/" + params.data.totalCount
+                );
+                // }
               }
             }
           },
@@ -229,7 +231,7 @@ export default {
             z: 1,
             barGap: "-100%",
             data: [],
-            barWidth: 20,
+            barWidth: 38,
             itemStyle: {
               color: {
                 type: "linear",
@@ -265,18 +267,20 @@ export default {
           let resdata = [],
             fullData = [];
           for (const item of res.content) {
-            resdata = resdata.concat(item.list);
+            resdata = resdata.concat(item);
           }
-          for (let i = 0; i < resdata.length; i++) {
+          for (let i = 0; i < res.content.length; i++) {
             fullData.push(100);
           }
-          option.yAxis.data = resdata.map(item => item.name);
+          option.yAxis.data = resdata.map(
+            item => resourceTypes[item.resourceType]
+          );
           option.series[0].data = resdata.map(item => {
-            const { availablecount, totalcount } = item;
+            const { availableCount, totalCount } = item.resourceCount;
             return {
-              value: (availablecount /totalcount) * 100,
-              availablecount,
-              totalcount
+              value: (availableCount / totalCount) * 100,
+              availableCount,
+              totalCount
             };
           });
           option.series[1].data = fullData;
@@ -284,31 +288,32 @@ export default {
         }
       });
     },
-    getAttentionMonitors(){
-      querySpecialAttentionMonitors().then(res=>{
-        const filterMonitors=data=>{
-          if(this.monitors.length>4){
-            return;
-          }
-          if(data.monitors.length>0){
-            this.monitors=this.monitors.concat(data.monitors);
-          }
-          if(data.children.length>0){
-            filterMonitors(data.children);
-          }
-        }
-        if(res.ret=='ok'){
+    getAttentionMonitors() {
+      querySpecialAttentionMonitors().then(res => {
+        if (res.ret == "ok" && this.$store.state.isConnecting) {
+          let monitors = [];
+          const filterMonitors = data => {
+            if (monitors.length > 4) {
+              return;
+            }
+            if (data.monitors.length > 0) {
+              monitors = monitors.concat(data.monitors);
+            }
+            if (data.children.length > 0) {
+              filterMonitors(data.children);
+            }
+          };
           filterMonitors(res.content);
-          console.log(this.monitors);
-          this.monitors.forEach((item,index) => {
-             this.playVideo(index,item.code);
+          monitors.forEach((item, index) => {
+            this.playVideo(index, item.code);
           });
         }
-      })
+      });
     },
-     playVideo(index,code) {
-       /* eslint-disable */
-      let mediaQuality=window.mediaQuality;
+    playVideo(index, code) {
+      /* eslint-disable */
+
+      let mediaQuality = window.mediaQuality;
       let loading = this.$loading({
         target: document.querySelector("#vframe_" + index),
         lock: true,
@@ -319,11 +324,13 @@ export default {
       });
       let chCallback = function(handler, event) {
         switch (event.EventID) {
-
           case RtcCamEventID.RTC_CHANNEL_REMOTE_STREAM_INCOMING:
             {
               let streamObj = event["EventObj"];
-              rtcAttachStream(document.querySelector("#video_" + index), streamObj);
+              rtcAttachStream(
+                document.querySelector("#video_" + index),
+                streamObj
+              );
               loading.close();
             }
             break;
@@ -336,7 +343,7 @@ export default {
           case RtcCamEventID.RTC_CHANNEL_REMOTE_DISCONNECT:
             if (event.EventObj !== undefined) {
               console.log(userName + ": 已退出");
-            }   
+            }
             break;
         }
       };
@@ -346,7 +353,7 @@ export default {
         { mediaQuality },
         chCallback
       );
-    },
+    }
   }
 };
 </script>
@@ -355,8 +362,8 @@ export default {
   display: flex;
   padding: 0 20px;
   box-sizing: border-box;
-  &>.left,
-  &>.right {
+  & > .left,
+  & > .right {
     width: 364px;
     height: 950px;
     padding: 34px 20px;
@@ -364,17 +371,17 @@ export default {
     background: url("../../assets/img/首页/左侧背景.png") no-repeat bottom;
     background-size: contain;
   }
-  &>.right {
+  & > .right {
     background: url("../../assets/img/首页/右侧背景.png") no-repeat bottom;
   }
   .mid {
-    flex-grow: 1; 
+    flex-grow: 1;
   }
 }
- .map-box {
-      width: 100%;
-      height: 740px;
-    }
+.map-box {
+  width: 100%;
+  height: 740px;
+}
 .week-event {
   width: 100%;
   .module-head {
@@ -387,8 +394,6 @@ export default {
       cursor: pointer;
     }
   }
-
- 
 }
 .statistics-box {
   width: 100%;
@@ -446,8 +451,8 @@ export default {
       }
       & > video {
         width: 100%;
-        height:100%; 
-        object-fit: fill
+        height: 100%;
+        object-fit: fill;
       }
     }
   }

@@ -64,13 +64,13 @@
               </el-select>
             </el-form-item>
             <el-form-item class="half" label="移动电话" prop="yddh" :label-width="formLabelWidth">
-              <el-input v-model="form.yddh" autocomplete="off"></el-input>
+              <el-input v-model="form.yddh" autocomplete="off" maxlength="11" oninput="value=value.replace(/\D/g,'')"></el-input>
             </el-form-item>
             <el-form-item class="half" label="家庭电话" prop="jtdh" :label-width="formLabelWidth">
-              <el-input v-model="form.jtdh" autocomplete="off"></el-input>
+              <el-input v-model="form.jtdh" autocomplete="off" maxlength="11" oninput="value=value.replace(/\D/g,'')"></el-input>
             </el-form-item>
             <el-form-item class="half" label="办公电话" prop="bgdh" :label-width="formLabelWidth">
-              <el-input v-model="form.bgdh" autocomplete="off"></el-input>
+              <el-input v-model="form.bgdh" autocomplete="off" maxlength="11" oninput="value=value.replace(/\D/g,'')"></el-input>
             </el-form-item>
             <el-form-item class="half" label="最高学历" prop="zgxl" :label-width="formLabelWidth">
               <el-select autocomplete="off" v-model="form.zgxl">
@@ -92,8 +92,9 @@
             <el-form-item label="通讯地址" prop="txdz" :label-width="formLabelWidth">
               <el-input v-model="form.txdz" autocomplete="off"></el-input>
             </el-form-item>
-            <el-form-item label="电子邮件" prop="dzyj" :label-width="formLabelWidth">
-              <el-input v-model="form.dzyj" autocomplete="off"></el-input>
+            <el-form-item label="电子邮件" prop="dzyj" :label-width="formLabelWidth" 
+             :rules="[ { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur',] }]">
+              <el-input v-model="form.dzyj" autocomplete="off" type="email"></el-input>
             </el-form-item>
           </el-col>
         </el-row>

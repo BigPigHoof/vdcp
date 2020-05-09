@@ -1,3 +1,4 @@
+
 export function upGo(fieldData, index) {
     if (index != 0) {
       fieldData[index] = fieldData.splice(index - 1, 1, fieldData[index])[0];
@@ -18,4 +19,14 @@ export function downGo(fieldData, index) {
     }else{
       return false;
     }
+  }
+  export function formatterSex(row) {
+    if(row.xb==0){
+      return '女'
+    }
+     else if(row.xb==1){
+      return '男'
+    }else{
+      return '';
+    }   
   }

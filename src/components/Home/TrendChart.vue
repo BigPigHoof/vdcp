@@ -66,6 +66,7 @@ const option = {
   },
   yAxis: {
     type: "value",
+    minInterval: 1,
     axisLine: {
       show: true,
       lineStyle: {
@@ -123,7 +124,8 @@ export default {
   props: ["chartId", "region"],
   data() {
     return {
-        dateArea: "",
+      dateArea: "iw",
+      regionCode:this.region,
       eventTotalNum: null,
       eventAddNum: null,
       chart: null,
@@ -131,13 +133,21 @@ export default {
     };
   },
   mounted() {
+    console.log(123123)
     this.$nextTick(()=>{
-       this.chart = this.$echarts.init(document.getElementById(this.chartId));
-        this.getTrend('iw');
+      this.chart = this.$echarts.init(document.getElementById(this.chartId));
+       if(this.region) this.getTrend('iw');
     })
+  },
+  watch:{
+    region(val){
+      this.regionCode=val;
+    }
   },
   methods: {
     getTrend(dateArea) {
+      let regionCode=this.region;
+      console.log(regionCode);
       this.dateArea = dateArea;
       this.chart.showLoading("default", {
         text: "loading",
@@ -146,12 +156,12 @@ export default {
         maskColor: "rgba(255, 255, 255, 0)",
         zlevel: 0
       });
-      getIncidentsAnalysis({ dateRange:dateArea, regionCode: this.region }).then(res => {
+      getIncidentsAnalysis({ dateRange:dateArea, regionCode: this.regionCode }).then(res => {
         this.chart.hideLoading();
         if (res.ret == "ok") {
           this.eventTotalNum = res.content.totalCount;
-          this.eventAddNum = res.content.weekCount;
-          this.option.series[0].data=res.content.list.map(item => item.dayCount);
+          this.eventAddNum = res.content.newCount;
+          this.option.series[0].data=res.content.list.map(item => item.count);
           this.option.xAxis.data= res.content.list.map(item => dateArea == 'dd' ? item.dateTime : item.dateTime.substr(5));
           this.chart.setOption(this.option);
        }

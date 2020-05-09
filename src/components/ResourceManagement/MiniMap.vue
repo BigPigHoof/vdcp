@@ -21,7 +21,8 @@ export default {
       AMapUI: null,
       showAMapUI: false,
       poiPicker: null,
-      searchName: ""
+      searchName: "",
+      marker:new AMap.Marker(),
     };
   },
   watch:{
@@ -61,11 +62,10 @@ export default {
         that.poiPicker = new PoiPicker({
           input: "pickerInput"
         });
-        var marker = new AMap.Marker();
         that.poiPicker.on("poiPicked", function(poiResult) {
           var poi = poiResult.item;
-          marker.setMap(map);
-          marker.setPosition(poi.location);
+          that.marker.setMap(map);
+          that.marker.setPosition(poi.location);
           map.setCenter(poi.location);
           that.$emit("getPosition", [poi.location.lng, poi.location.lat,poi.name]);
         });
@@ -82,6 +82,7 @@ export default {
     reset(){
       this.showAMapUI=false;
       this.searchName='';
+      this.miniMap.remove(this.marker);
     }
   }
 };

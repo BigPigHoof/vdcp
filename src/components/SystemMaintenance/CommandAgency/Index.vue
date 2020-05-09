@@ -40,8 +40,8 @@
         <el-col :span="6">
           <label for="parentBody">上级机构：</label>
           <el-select
-          size="small"
-          value-key="id"
+            size="small"
+            value-key="id"
             v-model="searchInfo.sjjgid"
             filterable
             clearable
@@ -81,17 +81,28 @@
         <el-col :span="6"></el-col>
       </el-row>
     </div>
-    <el-button v-if="$store.state.hasCompetence" style="margin-bottom:20px;" type="primary" size="small" @click="openAddForm">新增</el-button>
+    <el-button
+      v-if="$store.state.hasCompetence"
+      style="margin-bottom:20px;"
+      type="primary"
+      size="small"
+      @click="openAddForm"
+    >新增</el-button>
     <el-table
-      :data="tableData"
+      :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
       v-loading="loading"
       element-loading-background="rgba(0, 0, 0, 0.5)"
-      style="width: 100%"
-      height="650"
+      style="width: 100%;margin-bottom:14px;"
+     max-height="600"
     >
+      <el-table-column type="index" label="序号" :index="indexMethod"></el-table-column>
       <el-table-column prop="zzjgmc" label="名称"></el-table-column>
       <el-table-column prop="zzjgbm" label="编码"></el-table-column>
-      <el-table-column prop="administrativeDivision.xzqhjb" :formatter="formatterLevel" label="行政级别"></el-table-column>
+      <el-table-column
+        prop="administrativeDivision.xzqhjb"
+        :formatter="formatterLevel"
+        label="行政级别"
+      ></el-table-column>
       <el-table-column prop="sjjgmc" label="上级机构"></el-table-column>
       <el-table-column prop="administrativeDivision.xzqhmc" label="所属行政区域"></el-table-column>
 
@@ -99,13 +110,31 @@
         <template slot-scope="scope">
           <span class="option" @click="openEditForm(scope.row)">修改</span>
           <el-popconfirm title="确定删除吗？" @onConfirm="deleteItem(scope.row)">
-            <span  class="option"  slot="reference">删除</span>
+            <span class="option" slot="reference">删除</span>
           </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
-    <AddEditForm :dialogVisible.sync="showForm" :title="formTitle" :parentData="allData" :form="formData" @refresh="getAgencyTable" @openAddMemberForm="openAddMemberForm"></AddEditForm>
-    <AddMemberForm :show.sync="showAddMemberForm" :jgid="nowJgid" @refresh="getAgencyTable" ref="member"></AddMemberForm>
+     <el-pagination
+      :current-page.sync="currentPage"
+      :page-size="pageSize"
+      layout="prev, pager, next, jumper"
+      :total="tableData.length">
+    </el-pagination>
+    <AddEditForm
+      :dialogVisible.sync="showForm"
+      :title="formTitle"
+      :parentData="allData"
+      :form="formData"
+      @refresh="getAgencyTable"
+      @openAddMemberForm="openAddMemberForm"
+    ></AddEditForm>
+    <AddMemberForm
+      :show.sync="showAddMemberForm"
+      :jgid="nowJgid"
+      @refresh="getAgencyTable"
+      ref="member"
+    ></AddMemberForm>
   </div>
 </template>
 
@@ -113,12 +142,12 @@
 import AddEditForm from "./AddEditForm";
 import AddMemberForm from "./AddMemberForm";
 import { regionData } from "../../../assets/js/regionData";
-import { queryOganization ,deleteOganization} from "../../../api/api";
+import { queryOganization, deleteOganization } from "../../../api/api";
 export default {
   data() {
     return {
-      allData:[],
-      nowJgid:'',
+      allData: [],
+      nowJgid: "",
       searchInfo: {
         xzqhjb: null,
         xzqhid: null,
@@ -127,16 +156,13 @@ export default {
         jgmc: null,
         znms: null
       },
-      te:{
-        id:211,
-        name:'caoni'
-      },
-      teData:[],
       nowLevel: "",
       regionLevels: ["省部级", "地市级", "县处级"],
       options: regionData,
       loading: false,
       tableData: [],
+      currentPage:1,
+      pageSize:30,
       parentBodyData: [],
       isSearchingParent: false,
       showForm: false,
@@ -145,31 +171,32 @@ export default {
         background: "burlywood"
       },
       formData: {
-        zzjgbm: '',
-        zzjgmc: '',
-        parent:{
-         
-        },
-        znms: '',
-        formatTime: '',
+        zzjgbm: "",
+        zzjgmc: "",
+        parent: {},
+        znms: "",
+        formatTime: "",
         administrativeDivision: {
-          id:'',
-          xzqhjb: '',
-          xzqhmc: ''
+          id: "",
+          xzqhjb: "",
+          xzqhmc: ""
         },
         leader: { id: null, xm: null },
         liaison: { id: null, xm: null }
       },
-      showAddMemberForm:false,
-      memberData:{}
+      showAddMemberForm: false,
+      memberData: {}
     };
   },
-  components: { AddEditForm,AddMemberForm },
+  components: { AddEditForm, AddMemberForm },
   created() {
     this.getAgencyTable({});
   },
 
   methods: {
+     indexMethod(index){
+      return (this.currentPage-1)*this.pageSize+index+1;
+    },
     regionChange(value) {
       console.log(value);
       let nodesObj = this.$refs["cascader"].getCheckedNodes();
@@ -180,18 +207,18 @@ export default {
     },
     openAddForm() {
       this.formData = {
-        zzjgbm: '',
-        zzjgmc: '',
-        sjjgid:'',
-        znms: '',
-        formatTime: '',
-        xzqhjb:'',
+        zzjgbm: "",
+        zzjgmc: "",
+        sjjgid: "",
+        znms: "",
+        formatTime: "",
+        xzqhjb: "",
         administrativeDivision: {
-          id:'',
-          xzqhjb: '',
-          xzqhmc: ''
+          id: "",
+          xzqhjb: "",
+          xzqhmc: ""
         },
-        leader:null,
+        leader: null,
         liaison: null
       };
       this.formTitle = "新增指挥机构";
@@ -200,15 +227,14 @@ export default {
     },
     openEditForm(data) {
       let formData = Object.assign({}, data);
-      this.formData=formData;
+      this.formData = formData;
       this.formTitle = "修改指挥机构";
       this.showForm = true;
     },
     deleteItem(item) {
-         deleteOganization({ orgId: item.id }).then(res => {
+      deleteOganization({ orgId: item.id }).then(res => {
         if (res.ret == "ok") {
           this.getAgencyTable();
-       
         } else {
           this.$message.error(res.msg);
         }
@@ -220,7 +246,7 @@ export default {
       queryOganization(params).then(res => {
         this.loading = false;
         if (res.ret == "ok") {
-          this.allData=res.content;
+          this.allData = res.content;
           this.tableData = res.content;
         } else {
           this.$message.error(res.msg);
@@ -228,10 +254,11 @@ export default {
       });
     },
     formatterLevel(row) {
-      if(row.administrativeDivision){
-        return this.regionLevels[parseInt(row.administrativeDivision.xzqhjb) - 1];
+      if (row.administrativeDivision) {
+        return this.regionLevels[
+          parseInt(row.administrativeDivision.xzqhjb) - 1
+        ];
       }
-      
     },
     searchAgency() {
       if (this.searchInfo.xzqhid) {
@@ -239,7 +266,7 @@ export default {
         console.log(this.searchInfo.xzqhid);
       }
 
-       this.loading = true;
+      this.loading = true;
       queryOganization(this.searchInfo).then(res => {
         this.loading = false;
         if (res.ret == "ok") {
@@ -268,11 +295,10 @@ export default {
       }
       console.log(this.searchInfo.xzqhjb, item);
     },
-    openAddMemberForm(id){
-       this.nowJgid=id;
+    openAddMemberForm(id) {
+      this.nowJgid = id;
       this.$refs.member.getPersons({});
-      this.showAddMemberForm=true;
-     
+      this.showAddMemberForm = true;
     }
   }
 };
@@ -284,11 +310,6 @@ export default {
 }
 
 
-.option {
-  color: #30c7ff;
-  margin-right: 20px;
-  cursor: pointer;
-}
 .cas {
   background-color: burlywood;
 }

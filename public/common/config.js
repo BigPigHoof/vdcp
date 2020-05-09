@@ -7,9 +7,11 @@
     weatherUpdateTime:1000 * 60 * 10, //天气更新时间，默认十分钟
     eventDynamicsSpeed:3000,       //事件动态滚动时间（需大于1秒，1000=1秒）
     language:'zh',                  //语言
-    noLogin:true,    // 免登录
+    noLogin:false,    // 免登录
     isSham:false,     //启用假视频
     mapName:'上海', //地图,需和map目录下的json文件名对应
+    regionCode:'310000',  //当前地区行政区划编码
+    geoLevel:6,  //周边摄像头范围
   }
 
 

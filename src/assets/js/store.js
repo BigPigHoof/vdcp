@@ -9,7 +9,8 @@ export default new vuex.Store({
             mainSiteUri: ""
         },
         selectedSites:[],
-        hasCompetence:sessionStorage.getItem('isLogin')?true:false
+        hasCompetence:getRole(),
+        isConnecting:false
     },
     mutations:{
         update(state,newVal){//这里的state对应着上面这个state
@@ -18,3 +19,11 @@ export default new vuex.Store({
         }
     }
 })
+function getRole(){
+    let role=sessionStorage.getItem('role');
+    if(role){
+        return parseInt(role)<3?true:false
+    }else{
+        return false
+    }
+}

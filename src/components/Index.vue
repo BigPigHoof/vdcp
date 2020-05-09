@@ -8,7 +8,7 @@
           <span class="info">{{nowWeather}}</span>
         </div>
       </div>
-      <h4 class="title">可视化决策指挥系统</h4>
+      <h4 class="title">可视决策指挥平台</h4>
       <div class="right">
         <div class="time">
           <span class="date-time">{{nowTime| dateformat('YYYY-MM-DD HH:mm')}}</span>
@@ -162,8 +162,8 @@ export default {
         resizeEnable: true,
         zoom: 12
       });
+      console.log(AMap.GeometryUtil.distance(new AMap.LngLat(116.391728, 39.992907), new AMap.LngLat(116.37736, 39.985336)) )
 
-      console.log(this.map);
     },
     logout() {
       sessionStorage.removeItem("isLogin");
@@ -172,6 +172,7 @@ export default {
       this.$router.push("/Login");
     },
     initVideo() {
+      console.log('caonima')
       let rtcSession = null;
       let sessionCfg = {};
       let mediaQuality = { video: {}, audio: {} };
@@ -201,10 +202,13 @@ export default {
       if (isError) {
         switch (evtID) {
           case RtcCommonEventID.RTC_SESSION_CONNECTION_FAILED:
-            that.$message.error("监控服务器连接失败");
+            // that.$message.error("监控服务器连接失败");
+            console.log("监控服务器连接失败")
             break;
         }
         return;
+      }else{
+        this.$store.state.isConnecting=true;
       }
       let serviceCallback = function(handler, event) {
         if (event.isError) {

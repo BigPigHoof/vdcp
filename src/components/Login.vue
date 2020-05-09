@@ -90,6 +90,7 @@ export default {
                 } else {
                   this.$store.state.hasCompetence = false;
                 }
+                 sessionStorage.setItem("role", id);
                 sessionStorage.setItem("isLogin", this.loginForm.username);
                 localStorage.setItem("smcHcUri", res.content.smcHcUri);
                 localStorage.setItem("smcHcPwd", res.content.smcHcPwd);

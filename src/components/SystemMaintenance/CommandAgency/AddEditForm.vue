@@ -129,11 +129,12 @@
           </el-row>
           <el-table
             v-if="title=='修改指挥机构'"
-            :data="form.persons"
-            style="width: 100%;margin-bottom:20px;"
-            height="300"
+            :data="form.persons.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+            style="width: 100%;margin-bottom:14px;"
+            max-height="300"
             :loading="isUpdatingMember"
           >
+              <el-table-column type="index" label="序号"></el-table-column>
             <el-table-column prop="xm" label="姓名"></el-table-column>
             <el-table-column prop="znzw" label="组内职务"></el-table-column>
             <el-table-column prop="znfg" label="组内分工"></el-table-column>
@@ -147,6 +148,14 @@
               </template>
             </el-table-column>
           </el-table>
+            <el-pagination
+              v-if="title=='修改指挥机构'"
+      :current-page.sync="currentPage"
+      :page-size="pageSize"
+      layout="prev, pager, next, jumper"
+      :total="form.persons.length"
+      style="margin-bottom:20px;">
+    </el-pagination>
           <el-form-item style="text-align:center;">
             <el-button type="primary" @click="add('close')" :loading="isSaving">保存后关闭</el-button>
             <el-button type="primary" @click="add('open')" :loading="isSaving">保存后添加成员</el-button>
@@ -242,7 +251,9 @@ export default {
         znfg: "",
         znzw: ""
       },
-      isUpdatingMember: false
+      isUpdatingMember: false,
+       currentPage:1,
+      pageSize:30,
     };
   },
   watch: {
@@ -259,6 +270,9 @@ export default {
     }
   },
   methods: {
+       indexMethod(index){
+      return (this.currentPage-1)*this.pageSize+index+1;
+    },
     closeForm() {
       this.$refs["form"].resetFields();
       this.nowLevel = "";
@@ -443,10 +457,6 @@ export default {
   .el-select {
     width: 100%;
   }
-  .option {
-    color: #30c7ff;
-    margin-right: 20px;
-    cursor: pointer;
-  }
+ 
 }
 </style>

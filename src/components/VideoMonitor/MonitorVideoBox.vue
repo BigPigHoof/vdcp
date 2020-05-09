@@ -88,6 +88,10 @@ export default {
   methods: {
 
     playVideo(code) {
+      if(!this.$store.state.isConnecting){
+        this.$message.warning('监控服务未连接上');
+        return
+      }
       let feedIndex = findEmptyVideoFrame();
       if (feedIndex === -1) {
         this.$message.warning("没有多余的窗口显示监控视频！");

@@ -8,7 +8,7 @@
       </el-col>
       <el-col :span="10">
         <label for="code">移动号码：</label>
-        <el-input size="small" id="code" v-model="searchInfo.yddh"></el-input>
+        <el-input size="small" id="code" v-model="searchInfo.yddh" maxlength="11" oninput="value=value.replace(/\D/g,'')"></el-input>
       </el-col>
       <el-col :span="4">
         <el-button type="primary" size="small" @click="getPersons(searchInfo)">查询</el-button>
@@ -26,23 +26,31 @@
         >
           <el-radio-group @change="changeRadio" v-model="form.id" style="width:100%">
             <el-table
-              :data="persons"
+              :data="persons.slice((currentPage-1)*pageSize,currentPage*pageSize)"
               style="width: 100%;margin-bottom:20px;"
               height="300"
               :loading="isSearching"
             >
               <el-table-column label="序号" width="100">
                 <template slot-scope="scope">
-                  <el-radio :label="scope.row.id" style="color:white;">{{scope.$index+1}}</el-radio>
+                  <el-radio :label="scope.row.id" style="color:white;">{{scope.$index+1+(currentPage-1)*pageSize}}</el-radio>
                 </template>
               </el-table-column>
 
               <el-table-column prop="xm" label="姓名"></el-table-column>
-              <el-table-column prop="xb" label="性别"></el-table-column>
+              <el-table-column prop="xb" label="性别" :formatter="formatterSex"></el-table-column>
               <el-table-column prop="yddh" label="移动电话"></el-table-column>
               <el-table-column prop="zw" label="职务"></el-table-column>
             </el-table>
           </el-radio-group>
+               <el-pagination
+             
+      :current-page.sync="currentPage"
+      :page-size="pageSize"
+      layout="prev, pager, next, jumper"
+      :total="persons.length"
+      style="margin-bottom:20px;">
+    </el-pagination>
         </el-form-item>
         <el-form-item label="编码" prop="bm" :label-width="formLabelWidth">
           <el-input v-model="form.bm" autocomplete="off"></el-input>
@@ -65,6 +73,7 @@
 
 <script>
 import { queryPersonNoOrg, addPersonOfOrg } from "../../../api/api";
+import {formatterSex} from '../../../assets/js/function'
 export default {
   props: ["show", "jgid"],
   data() {
@@ -77,13 +86,16 @@ export default {
       form: { id: null, bm: null, znzw: null, znfg: null },
       isSearching: false,
       persons: [],
-      isSaving: false
+      isSaving: false,
+       currentPage:1,
+      pageSize:30,
     };
   },
   created() {
     this.getPersons({});
   },
   methods: {
+    formatterSex,
     closeForm() {
       this.searchInfo = {
         xm: null,
@@ -96,7 +108,9 @@ export default {
       queryPersonNoOrg(prams).then(res => {
         this.isSearching = false;
         if (res.ret == "ok") {
+           this.currentPage=1;
           this.persons = res.content;
+         
         } else {
           this.$message.error(res.msg);
         }

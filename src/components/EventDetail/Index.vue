@@ -4,15 +4,15 @@
     <div class="left top-z">
       <TabView :heads="['事件详情','事件动态']">
         <template v-slot:left>
-          <div class="info-box" >
+          <div class="info-box">
             <h4 :title="eventData.title">{{eventData.title}}</h4>
             <p class="time">{{eventData.occurrTime}}</p>
             <div class="content-box">
               <p :title="eventData.content">{{eventData.content}}</p>
               <div class="btns">
                 <span>监控预案</span>
-                <span>指挥调度</span>
-                <span>联动处置</span>
+                <!-- <span>指挥调度</span>
+                <span>联动处置</span>-->
               </div>
             </div>
           </div>
@@ -24,7 +24,12 @@
         <template v-slot:right>
           <div class="event-dynamics">
             <div class="move">
-              <i disabled class="iconfont iconyidong-xiangshang" @click="upScroll"></i>
+              <i
+                disabled
+                class="iconfont iconyidong-xiangshang"
+                :style="{'cursor':mouseStyle}"
+                @click="upScroll"
+              ></i>
             </div>
             <ul class="dynamics-content">
               <li class="item" v-for="item in eventDynamicsData" :key="item.id">
@@ -37,7 +42,11 @@
               </li>
             </ul>
             <div class="move">
-              <i class="iconfont iconyidong-xiangxia" @click="downScroll"></i>
+              <i
+                class="iconfont iconyidong-xiangxia"
+                :style="{'cursor':mouseStyle}"
+                @click="downScroll"
+              ></i>
             </div>
           </div>
         </template>
@@ -54,7 +63,13 @@
         ></span>
       </div>
     </div>
-    <div class="right top-z"></div>
+    <div class="right top-z">
+      <div class="video-box">
+        <div :id="'vframe_'+index" v-for="(num,index) in 4" :key="num">
+          <video autoplay playsinline :id="'video_'+index"></video>
+        </div>
+      </div>
+    </div>
     <transition name="el-fade-in-linear">
       <div class="pop-box" :style="popStyle" v-show="showPop">
         <i style="float:right;" class="el-icon-close" @click="showPop=false"></i>
@@ -81,18 +96,20 @@ import {
   queryAroundResourceInfo,
   queryIncidentInfoTimeAxis,
   queryEmergencyResources,
-  releaseInstructions
+  releaseInstructions,
+  queryMonitorsArroundIncodent
 } from "../../api/api";
 
 export default {
   props: ["map"],
   data() {
     return {
-      resourceTypes: ["SXT", "ZBJQ", "CZLL", "ZDDW",],
+      resourceTypes: ["SXT", "ZBJQ", "CZLL", "ZDDW"],
       eventData: {},
       eventDynamicsData: [],
       top: 0,
       timer: null,
+      canScroll: false,
       isScrolling: false,
       markers: [],
       showPop: false,
@@ -102,42 +119,49 @@ export default {
         left: 0
       },
       showMsgBox: false,
-      msgInfo:{
-       incidentId:this.$route.params.id, instructionContent:'', terminalCode:'', userCode:''
+      msgInfo: {
+        incidentId: this.$route.params.id,
+        instructionContent: "",
+        terminalCode: "",
+        userCode: ""
       },
-      isSending:false
+      isSending: false
     };
   },
+  computed: {
+    mouseStyle: function() {
+      return this.canScroll ? "pointer" : "default";
+    }
+  },
   created() {
-    console.log(this.$route)
+    console.log(this.$route);
     getWeekIncident().then(res => {
       if (res.ret == "ok") {
         for (const item of res.content) {
-          if(item.id == this.$route.params.id){
-            this.eventData =item;
+          if (item.id == this.$route.params.id) {
+            this.eventData = item;
           }
-          
         }
-   
-       if(this.eventData.id){
+
+        if (this.eventData.id) {
           let markers = this.map.getAllOverlays("marker");
-        let circle = this.map.getAllOverlays("circle");
-        let { longitude, latitude, id } = this.eventData;
-        if (markers) {
-          this.map.remove(markers);
+          let circle = this.map.getAllOverlays("circle");
+          let { longitude, latitude, id } = this.eventData;
+          if (markers) {
+            this.map.remove(markers);
+          }
+          if (circle) {
+            this.map.remove(circle);
+          }
+          this.getAroundResource(longitude, latitude);
+          this.getMonitors(longitude, latitude);
+          this.getEventDynamics(id);
+          this.map.setCenter([longitude, latitude]);
+          drawCircle(longitude, latitude, this.map);
+        } else {
+          this.$message.warning("暂无数据");
         }
-        if (circle) {
-          this.map.remove(circle);
-        }
-        this.getAroundResource(longitude, latitude);
-        this.getEventDynamics(id);
-        this.map.setCenter([longitude, latitude]);
-        drawCircle(longitude, latitude, this.map);
-       }else{
-         this.$message.warning('暂无数据')
-       }
-       
-      }else{
+      } else {
         this.$message.error(res.msg);
       }
     });
@@ -358,7 +382,6 @@ export default {
     getEventDynamics(incidentId) {
       queryIncidentInfoTimeAxis({ incidentId }).then(res => {
         if (res.ret == "ok") {
-          this.eventDynamicsData = res.content;
           // for (let index = 0; index < 12; index++) {
           //   this.eventDynamicsData.push({
           //     id: index,
@@ -368,13 +391,33 @@ export default {
           //     zlsj: "2020-03-13 08:31:58"
           //   });
           // }
+          this.eventDynamicsData = res.content;
+
           setTimeout(() => {
             const ul = document.querySelector(".dynamics-content");
             let { scrollHeight, clientHeight } = ul;
             if (scrollHeight > clientHeight) {
+              this.canScroll = true;
               this.timer = setInterval(this.scroll, 3000);
             }
           }, 500);
+        }
+      });
+    },
+    getMonitors(longitude, latitude) {
+      queryMonitorsArroundIncodent({
+        geoLevel: window.config.geoLevel,
+        longitude,
+        latitude
+      }).then(res => {
+        if (res.ret == "ok") {
+          if (this.$store.state.isConnecting && res.content.length > 0) {
+            for (let i = 0; i < res.content.length; i++) {
+              if (i < 4) {
+                this.playVideo(i, res.content[i].code);
+              }
+            }
+          }
         }
       });
     },
@@ -390,28 +433,26 @@ export default {
       }, 500);
     },
     upScroll() {
-      const ul = document.querySelector(".dynamics-content");
-      let { scrollHeight, clientHeight } = ul;
-      if (scrollHeight > clientHeight && !this.isScrolling) {
+      if (this.canScroll && !this.isScrolling) {
         clearInterval(this.timer);
         const li = document.querySelector(".dynamics-content>.item:last-child");
         let top = li.clientHeight;
         li.style.marginTop = -top + "px";
         downGo(this.eventDynamicsData, this.eventDynamicsData.length - 1);
-        this.$nextTick(() => {
+        // this.$nextTick(() => {
+        setTimeout(() => {
+          li.style.marginTop = 0;
+          this.isScrolling = true;
           setTimeout(() => {
-            li.style.marginTop = 0;
-            this.isScrolling = true;
-            setTimeout(() => {
-              this.isScrolling = false;
-              this.timer = setInterval(this.scroll, 3000);
-            }, 500);
-          }, 0);
-        });
+            this.isScrolling = false;
+            this.timer = setInterval(this.scroll, 3000);
+          }, 500);
+        }, 0);
+        // });
       }
     },
     downScroll() {
-      if (!this.isScrolling) {
+      if (!this.isScrolling && this.canScroll) {
         clearInterval(this.timer);
         this.scroll();
         this.timer = setInterval(this.scroll, 3000);
@@ -419,7 +460,18 @@ export default {
     },
     getMarkers(type) {
       let that = this;
-      queryEmergencyResources({ resourceType: type }).then(res => {
+      if (!this.eventData.id) {
+        this.$message.warning("当前没有事件");
+        return;
+      }
+      let { longitude, latitude } = this.eventData;
+      this.showPop = false;
+      queryEmergencyResources({
+        resourceType: type,
+        longitude,
+        latitude,
+        distance: 500
+      }).then(res => {
         if (res.ret == "ok") {
           this.map.remove(this.markers);
           this.markers = [];
@@ -445,16 +497,16 @@ export default {
                 case "SXT":
                   html = `
                                 <div>
-                                <span>类型:</span><span>${item.cameraType}</span>
+                                <span>类型:</span><span>${item.monitorType}</span>
                             </div>
                             <div>
-                                <span>名称:</span><span>${item.name}</span>
+                                <span>名称:</span><span>${item.monitorName}</span>
                             </div>
                             <div>
-                                <span>地址:</span><span>${item.address}</span>
+                                <span>地址:</span><span>${item.monitorAddress}</span>
                             </div>`;
                   break;
-                   case "ZDRY":
+                case "ZDRY":
                   html = `
                                 <div>
                                 <span>姓名:</span><span>${item.name}</span>
@@ -468,14 +520,10 @@ export default {
                                     <span>标题:</span><span>${item.title}</span>
                                 </div>
                                 <div>
-                                    <span>时间:</span><span>${item.caseTime
-                                      .split(".")[0]
-                                      .replace("T", " ")}</span>
+                                    <span>时间:</span><span>${item.occuredTime}</span>
                                 </div>
                                 <div>
-                                    <span>地址:</span><span>${
-                                      item.address
-                                    }</span>
+                                    <span>地址:</span><span>${item.address}</span>
                                 </div>`;
                   break;
                 case "CZLL":
@@ -485,14 +533,14 @@ export default {
                                         }</span>
                                     </div>
                                         <div>
-                                        <span>名称:</span><span id="mc">${
+                                        <span>名称:</span><span id="mc">${returnData(
                                           item.mc
-                                        }</span>
+                                        )}</span>
                                     </div>
                                             <div>
-                                            <span>所属机构:</span><span>${
+                                            <span>所属机构:</span><span>${returnData(
                                               item.ssjgmc
-                                            }</span>
+                                            )}</span>
                                         </div>
                                         <div>
                                         <span>呼号:</span><span id="hh" xtzh="${
@@ -500,9 +548,9 @@ export default {
                                         }">${item.hjhm}</span>
                                     </div>
                                     <div>
-                                        <span>联系方式:</span><span>${
-                                          item.lxfs ? item.lxfs : ""
-                                        }</span>
+                                        <span>联系方式:</span><span>${returnData(
+                                          item.lxfs
+                                        )}</span>
                                     </div>
                                     <div>
                                         <span>定位时间:</span><span>${
@@ -520,7 +568,15 @@ export default {
                                         }</span>
                                     </div>
                                     <div class="info-btns">
-                                    <span class="msg-btn" onclick="openMegBox(event,'${item.xtzh}','${item.bh}')">指令下达</span>  <span class="voice-btn" onclick="call(0,'${item.xtzh}')">语音调度</span>  <span class="video-btn" onclick="call(1,'${item.xtzh}')">视频调度</span>
+                                    <span class="msg-btn" onclick="openMegBox(event,'${
+                                      item.xtzh
+                                    }','${
+                    item.bh
+                  }')">指令下达</span>  <span class="voice-btn" onclick="call(0,'${
+                    item.xtzh
+                  }')">语音调度</span>  <span class="video-btn" onclick="call(1,'${
+                    item.xtzh
+                  }')">视频调度</span>
                                 </div>`;
                   break;
                 case "ZDDW":
@@ -584,48 +640,89 @@ export default {
         backgroundSize: "contain"
       };
     },
-    openMegBox(e,xtzh,bh) {
-      this.msgInfo.terminalCode=bh;
-      this.msgInfo.userCode=xtzh;
-      this.msgInfo.instructionContent='';
+    openMegBox(e, xtzh, bh) {
+      this.msgInfo.terminalCode = bh;
+      this.msgInfo.userCode = xtzh;
+      this.msgInfo.instructionContent = "";
       this.showMsgBox = true;
-
     },
     sendMsg() {
-      if(this.msgInfo.instructionContent.trim()){
-        this.isSending=true;
-         releaseInstructions(this.msgInfo).then(res=>{
-              this.isSending=false;
-           if(res.ret=='ok'){
-             this.showMsgBox=false;
-             this.$message.success('发送成功');
-           }else{
-             this.$message.error(res.msg)
-           }
-         })
-      }else{
-        this.$message.warning('请输入内容');
+      if (this.msgInfo.instructionContent.trim()) {
+        this.isSending = true;
+        releaseInstructions(this.msgInfo).then(res => {
+          this.isSending = false;
+          if (res.ret == "ok") {
+            this.showMsgBox = false;
+            this.getEventDynamics(this.eventData.id);
+            this.$message.success("发送成功");
+          } else {
+            this.$message.error(res.msg);
+          }
+        });
+      } else {
+        this.$message.warning("请输入内容");
       }
-     
     },
-    call(type,number){
-        const that=this;
-         if (number) {
+    call(type, number) {
+      const that = this;
+      if (number) {
+        // eslint-disable-next-line no-undef
+        tsdkClient.startCall(number, 0, function(data) {
+          // eslint-disable-next-line no-undef
+          call_Id = data.param.callId;
+          let tip = type == 0 ? "语音" : "视频";
+          if (data.result) {
+            that.$message.success(tip + "调度成功");
+          } else {
+            that.$message.error(tip + "调度失败");
+          }
+        });
+      } else {
+        that.$message.warning("没有呼号");
+      }
+    },
+    playVideo(index, code) {
+      /* eslint-disable */
+      let mediaQuality = window.mediaQuality;
+      let loading = this.$loading({
+        target: document.querySelector("#vframe_" + index),
+        lock: true,
+        text: "加载中",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0)",
+        fullscreen: false
+      });
+      let chCallback = function(handler, event) {
+        switch (event.EventID) {
+          case RtcCamEventID.RTC_CHANNEL_REMOTE_STREAM_INCOMING:
+            {
+              let streamObj = event["EventObj"];
+              rtcAttachStream(
+                document.querySelector("#video_" + index),
+                streamObj
+              );
+              loading.close();
+            }
+            break;
 
-            // eslint-disable-next-line no-undef
-            tsdkClient.startCall(number, 0, function (data) {
-                // eslint-disable-next-line no-undef
-                call_Id = data.param.callId;
-                let tip=type==0?'语音':'视频';
-                if (data.result) {
-                    that.$message.success(tip+'调度成功');
-                } else {
-                    that.$message.error(tip+'调度失败');
-                }
-            });
-        } else {
-             that.$message.warning('没有呼号');
+          case RtcCamEventID.RTC_CHANNEL_REMOTE_CONNECT_FAIL:
+            if (event.EventObj !== undefined) {
+              console.log(userName + ": 未接通");
+            }
+            break;
+          case RtcCamEventID.RTC_CHANNEL_REMOTE_DISCONNECT:
+            if (event.EventObj !== undefined) {
+              console.log(userName + ": 已退出");
+            }
+            break;
         }
+      };
+      rtcCamOpenStream(
+        "0" + code,
+        RtcMediaType.RTC_MEDIA_TYPE_AUDIO_VIDEO,
+        { mediaQuality },
+        chCallback
+      );
     }
   }
 };
@@ -658,6 +755,13 @@ function drawCircle(Lng, Lat, map) {
   circle.setMap(map);
   // 缩放地图到合适的视野级别
   map.setFitView([circle]);
+}
+function returnData(value) {
+  if (value === null || typeof value === "undefined") {
+    return "";
+  } else {
+    return value;
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -802,6 +906,7 @@ function drawCircle(Lng, Lat, map) {
       margin-left: 10px;
       padding-left: 24px;
       border-left: 2px solid #6685a9;
+
       &:first-child {
         transition: margin 0.5s;
       }
@@ -860,6 +965,15 @@ function drawCircle(Lng, Lat, map) {
     position: absolute;
     top: 2px;
     right: 2px;
+  }
+}
+.video-box {
+  width: 100%;
+  height: 100%;
+  & > div {
+    width: 100%;
+    height: calc(25% - 20px);
+    margin-bottom: 20px;
   }
 }
 </style>

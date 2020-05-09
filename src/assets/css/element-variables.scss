@@ -202,5 +202,18 @@ a {
   // padding: 12px 0;
   //   background: rgba(255, 255, 255, 0);
   }
-
+  .el-pagination{
+    color: #bbbbbb;
+  }
+  .el-pager li,.el-pagination .btn-prev, .el-pagination .btn-next{
+    background: none;
+    color: #bbbbbb;
+  }
+  .el-pagination button:disabled{
+    background: none;
+    color: #8c8f94;
+  }
+  .el-pagination__jump{
+    color:white;
+  }
 

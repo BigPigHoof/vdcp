@@ -44,12 +44,13 @@
       </div>
     </div>
     <el-table
-      :data="tableData"
+      :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
       v-loading="loading"
       element-loading-background="rgba(0, 0, 0, 0.5)"
-      style="width: 100%"
-      height="680"
+      style="width: 100%;margin-bottom:14px;"
+     max-height="600"
     >
+        <el-table-column type="index" label="序号"  :index="indexMethod"></el-table-column>
       <el-table-column prop="xm" label="名称"></el-table-column>
       <el-table-column prop="xb" label="性别" :formatter="formatterSex"></el-table-column>
       <el-table-column prop="yddh" label="移动电话"></el-table-column>
@@ -66,8 +67,14 @@
         </template>
       </el-table-column>
     </el-table>
+      <el-pagination
+      :current-page.sync="currentPage"
+      :page-size="pageSize"
+      layout="prev, pager, next, jumper"
+      :total="tableData.length">
+    </el-pagination>
     <PersonForm :show.sync="showPersonForm" ref="personForm" :title="formTitle" :form="formData" @refresh="getPersons"></PersonForm>
-    <AssignForm :show="false" :person="person" ref="assignForm" @refresh="getPersons"></AssignForm>
+   
      <el-dialog title="分配用户" :visible.sync="showAssignForm" width="40%" @close="accountCode=null">
        <div>
           <label for="accountCode">账号编码：</label>
@@ -96,7 +103,7 @@
 <script>
 import { queryOganization, queryPerson, deletePerson } from "../../../api/api";
 import PersonForm from "./PersonForm";
-import AssignForm from "./AssignForm";
+
 export default {
   data() {
     return {
@@ -111,6 +118,8 @@ export default {
       isChecked: false,
       allPersonsData: [],
       tableData: [],
+      currentPage:1,
+      pageSize:30,
       loading: false,
       showPersonForm: false,
       showAssignForm:false,
@@ -139,7 +148,7 @@ export default {
   created() {
     this.getPersons({});
   },
-  components: { PersonForm,AssignForm },
+  components: { PersonForm, },
   methods: {
     searchAgency() {
       this.isSearchingAgency = true;
@@ -147,10 +156,14 @@ export default {
         this.isSearchingAgency = false;
         if (res.ret == "ok") {
           this.agencyData = res.content;
+          this.currentPage=1;
         } else {
           this.$message.error(res.msg);
         }
       });
+    },
+    indexMethod(index){
+      return (this.currentPage-1)*this.pageSize+index+1;
     },
     filterUser(val) {
       this.tableData = val
@@ -193,8 +206,7 @@ export default {
         return '男'
       }else{
         return '';
-      }
-      
+      }   
     },
     openPersonForm(type, item) {
       if (type == "add") {
@@ -228,9 +240,4 @@ export default {
 </script>
 <style lang="scss" scoped>
 
-.option {
-  color: #30c7ff;
-  margin-right: 20px;
-  cursor: pointer;
-}
 </style>

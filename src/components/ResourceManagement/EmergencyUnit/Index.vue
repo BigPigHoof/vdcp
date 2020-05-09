@@ -63,12 +63,13 @@
     </div>
     <el-button v-if="$store.state.hasCompetence" style="margin-bottom:20px;" type="primary" size="small" @click="openForm('add')">新增</el-button>
     <el-table
-      :data="tableData"
+      :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
       v-loading="loading"
       element-loading-background="rgba(0, 0, 0, 0.5)"
-      style="width: 100%"
-      height="650"
+         style="width: 100%;margin-bottom:14px;"
+     max-height="600"
     >
+    <el-table-column type="index" label="序号" :index="indexMethod"></el-table-column>
       <el-table-column prop="dwmc" label="名称"></el-table-column>
       <el-table-column prop="dwbm" label="编码"></el-table-column>
       <el-table-column prop="sjdwmc" label="上级单位"></el-table-column>
@@ -82,6 +83,12 @@
         </template>
       </el-table-column>
     </el-table>
+       <el-pagination
+      :current-page.sync="currentPage"
+      :page-size="pageSize"
+      layout="prev, pager, next, jumper"
+      :total="tableData.length">
+    </el-pagination>
     <el-dialog :title="formTitle" :visible.sync="showForm" width="90%">
       <el-row :gutter="30">
         <el-col :span="12">
@@ -185,6 +192,9 @@
             <el-form-item label="备注" prop="bz" :label-width="formLabelWidth">
               <el-input type="textarea" :rows="4" v-model="form.bz"></el-input>
             </el-form-item>
+            <el-form-item  prop="sfyx" :label-width="formLabelWidth">
+               <el-checkbox v-model="form.sfyx" >有效性</el-checkbox>
+            </el-form-item>
             <el-form-item style="text-align:center;">
               <el-button type="primary" size="small" :loading="isSaving" @click="save">保存</el-button>
               <el-button type="primary" size="small" @click="showForm=false">关闭</el-button>
@@ -192,7 +202,7 @@
           </el-form>
         </el-col>
         <el-col :span="12">
-          <MiniMap :address="this.form.dwdz" ref="miniMap" @getPosition="setPosition"></MiniMap>
+          <MiniMap :address="this.form.dwdz" :showForm="showForm" ref="miniMap" @getPosition="setPosition"></MiniMap>
         </el-col>
       </el-row>
     </el-dialog>
@@ -233,7 +243,9 @@ export default {
       formTitle: "",
       form: {},
       formLabelWidth: "100px",
-      isSaving: false
+      isSaving: false,
+      currentPage:1,
+      pageSize:30,
     };
   },
   components: { MiniMap },
@@ -241,6 +253,9 @@ export default {
     this.getEmergencyUnit({});
   },
   methods: {
+    indexMethod(index){
+      return (this.currentPage-1)*this.pageSize+index+1;
+    },
     getEmergencyUnit() {
       queryEmergencyUnit({}).then(res => {
         doRes(res, this.loading, this.$message, content => {
@@ -252,7 +267,9 @@ export default {
     search(){
         queryEmergencyUnit(this.searchInfo).then(res => {
         doRes(res, this.loading, this.$message, content => {
+          this.currentPage=1;
           this.tableData = content;
+          
         });
       });
     },
@@ -295,7 +312,8 @@ export default {
           zbdh: null,
           zn: null,
           dwms: null,
-          bz: null
+          bz: null,
+          sfyx:false,
         };
         this.formTitle = "新增应急单位";
       } else {
@@ -337,9 +355,10 @@ export default {
     },
     setPosition(pos) {
       if (Array.isArray(pos)) {
-        if (pos.length == 2) {
+        if (pos.length == 3) {
           this.form.dwjd = pos[0];
           this.form.dwwd = pos[1];
+           this.form.dwdz=pos[2];
         }
       }
     }

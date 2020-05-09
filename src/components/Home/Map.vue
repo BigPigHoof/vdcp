@@ -136,7 +136,7 @@ export default {
   components: { TrendChart },
   methods: {
     initMap() {
-      const that = this;
+      let that = this;
       this.mapChart = this.$echarts.init(document.getElementById("map"));
       this.mapChart.showLoading("default", {
         text: "loading",
@@ -154,19 +154,22 @@ export default {
         let {
           event: { offsetX, offsetY }
         } = params;
-        let pos=that.mapChart.convertFromPixel('geo', [offsetX,offsetY]);
-        let parameters={
-          key:'1ebd4abbc27a1411331a30ae13570a11',
-          location:pos.join(',')
-        }
-        get('https://restapi.amap.com/v3/geocode/regeo',parameters).then(res=>{
-          console.log(res)
-        })
-        that.regionCode=params.data.adCode;
-         that.regionArea=params.name;
+        // let pos=that.mapChart.convertFromPixel('geo', [offsetX,offsetY]);
+        // let parameters={
+        //   key:'1ebd4abbc27a1411331a30ae13570a11',
+        //   location:pos.join(',')
+        // }
+        // get('https://restapi.amap.com/v3/geocode/regeo',parameters).then(res=>{
+        //   console.log(res)
+        // })
+        that.regionCode=params.data.adCode+'';
+        console.log(that.regionCode,this.regionCode)
+        that.regionArea=params.name;
         that.left = offsetX - 180 + "px";
         that.top = offsetY < 340 ? offsetY + 20 + "px" : offsetY - 350 + "px";
-        that.$refs.trend.getTrend(that.$refs.trend.dateArea);
+        that.$nextTick(()=>{
+           that.$refs.trend.getTrend(that.$refs.trend.dateArea);
+        });
         that.showTrend = true;
       });
       this.mapChart.getZr().on("click", () => {

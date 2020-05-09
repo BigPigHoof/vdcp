@@ -53,12 +53,13 @@
     </div>
     <el-button v-if="$store.state.hasCompetence" style="margin-bottom:20px;" type="primary" size="small" @click="openForm('add')">新增</el-button>
     <el-table
-      :data="tableData"
+      :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
       v-loading="loading"
       element-loading-background="rgba(0, 0, 0, 0.5)"
-      style="width: 100%"
-      height="650"
+     style="width: 100%;margin-bottom:14px;"
+     max-height="600"
     >
+    <el-table-column type="index" label="序号" :index="indexMethod"></el-table-column>
       <el-table-column prop="cxmc" label="名称"></el-table-column>
       <el-table-column prop="bm" label="编码"></el-table-column>
       <el-table-column prop="cph" label="车牌号"></el-table-column>
@@ -74,6 +75,12 @@
         </template>
       </el-table-column>
     </el-table>
+      <el-pagination
+      :current-page.sync="currentPage"
+      :page-size="pageSize"
+      layout="prev, pager, next, jumper"
+      :total="tableData.length">
+    </el-pagination>
     <el-dialog :title="formTitle" :visible.sync="showForm" width="50%">
       <el-form
         v-if="showForm"
@@ -178,6 +185,9 @@
         <el-form-item label="备注" prop="bz" :label-width="formLabelWidth">
           <el-input type="textarea" :rows="4" v-model="form.bz"></el-input>
         </el-form-item>
+         <el-form-item  prop="sfyx" :label-width="formLabelWidth">
+               <el-checkbox v-model="form.sfyx" >有效性</el-checkbox>
+            </el-form-item>
         <el-form-item style="text-align:center;">
           <el-button type="primary" size="small" :loading="isSaving" @click="save">保存</el-button>
           <el-button type="primary" size="small" @click="showForm=false">关闭</el-button>
@@ -223,7 +233,9 @@ export default {
       formTitle: "",
       form: {},
       formLabelWidth: "140px",
-      isSaving: false
+      isSaving: false,
+      currentPage:1,
+      pageSize:30,
     };
   },
 
@@ -236,6 +248,9 @@ export default {
     });
   },
   methods: {
+      indexMethod(index){
+      return (this.currentPage-1)*this.pageSize+index+1;
+    },
     getEmergencyVehicle(params) {
       queryEmergencyVehicle(params).then(res => {
         doRes(res, this.loading, this.$message, content => {
@@ -244,6 +259,7 @@ export default {
       });
     },
     search() {
+      this.currentPage=1;
       this.getEmergencyVehicle(this.searchInfo);
     },
     regionChange(value) {
@@ -291,7 +307,8 @@ export default {
           zrdwmc: null,
              zrdwid: null,
              szdwid:null,
-          bz: null
+          bz: null,
+          sfyx:false
         };
         this.formTitle = "新增应急车辆";
       } else {

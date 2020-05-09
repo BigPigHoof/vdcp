@@ -402,8 +402,8 @@ export default {
       setMuteSites({ conferenceId, siteUris, mute }).then(res => {
         if (res.ret == "ok") {
           meeting.mute = !mute;
-          if (this.meetingId == meeting.id) {
-            this.$emit("refresh", meeting.id);
+          if (this.meetingId == meeting.id.conferenceId) {
+            this.$emit("refresh", meeting.id.conferenceId);
           }
         }
       });
@@ -414,7 +414,7 @@ export default {
           if (res.ret == "ok") {
                this.$message.success('取消广播成功');
             meeting.broadCastSiteUri = null;
-            this.meetingId = meeting.id;
+            this.meetingId = meeting.id.confInternalId;
             this.$emit("refresh", this.meetingId);
           } else {
             this.$message.error(res.msg);
@@ -425,7 +425,7 @@ export default {
           if (res.ret == "ok") {
              this.$message.success('广播成功');
             meeting.broadCastSiteUri = !meeting.broadCastSiteUri;
-            this.meetingId = meeting.id;
+            this.meetingId = meeting.id.confInternalId;
             this.$emit("refresh", this.meetingId);
           } else {
             this.$message.error(res.msg);
@@ -459,6 +459,10 @@ export default {
       });
     },
     broadcastSite(site) {
+      if(site.status.value=="Disconnected"||site.type.value=='SiteType_VoIpSip'){
+        this.$message.warning('离线和语音会场不能广播');
+        return;
+      }
       if(site.isBroadCast){
           cancelBroadcast({ uri: site.uri, meetId: this.meetingId }).then(res => {
         if (res.ret == "ok") {
@@ -482,10 +486,10 @@ export default {
     },
     callSite(site) {
       if (site.status.value == "Disconnected") {
-        let index = this.meetings.findIndex(item => item.id == this.meetingId);
+        // let index = this.meetings.findIndex(item => item.id.confInternalId == this.meetingId);
 
         callSiteToMeeting({
-          ...this.meetings[index],
+          id:this.meetingId,
           offLineSiteUri: [site.uri]
         }).then(res => {
           if (res.ret == "ok") {
@@ -589,6 +593,9 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
+       .iconfont{
+      cursor: pointer;
+    }
   }
   .meeting-list {
     height: 78px;
@@ -641,6 +648,7 @@ export default {
   .right {
     display: inline-block;
     width: calc(100% - 54px);
+ 
     & > .icon {
       margin-right: 20px;
       &:last-child {

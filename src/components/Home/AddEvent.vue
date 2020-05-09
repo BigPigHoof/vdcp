@@ -30,6 +30,7 @@
               v-model="form.longitude"
               autocomplete="off"
               oninput="value=value.replace(/[^0-9.]/g,'')"
+               @blur="changeRegionCode"
             ></el-input>
           </el-form-item>
           <el-form-item class="half" label="纬度">
@@ -37,6 +38,7 @@
               v-model="form.latitude"
               autocomplete="off"
               oninput="value=value.replace(/[^0-9.]/g,'')"
+              @blur="changeRegionCode"
             ></el-input>
           </el-form-item>
           <el-form-item class="half" label="事发时间">
@@ -177,6 +179,8 @@ export default {
         };
         get("https://restapi.amap.com/v3/geocode/regeo", parameters).then(
           res => {
+            console.log(res);
+            that.form.regionCode=res.regeocode.addressComponent.adcode;
             that.form.address = res.regeocode.formatted_address;
             that.form.longitude = e.lnglat.lng;
             that.form.latitude = e.lnglat.lat;
@@ -200,6 +204,7 @@ export default {
           marker.setMap(map);
           marker.setPosition(poi.location);
           map.setCenter(poi.location);
+          that.form.regionCode=poiResult.item.adcode;
           that.form.address = poiResult.item.name;
           that.form.longitude = poi.location.lng;
           that.form.latitude = poi.location.lat;
@@ -212,6 +217,25 @@ export default {
         this.searchName = address;
         this.poiPicker.suggest(address);
         this.showAMapUI = true;
+      }
+    },
+    changeRegionCode(){
+      if(!this.form.longitude||!this.form.latitude){
+        this.form.regionCode=null;
+      }else{
+          let parameters = {
+          key: "1ebd4abbc27a1411331a30ae13570a11",
+          location: this.form.longitude + "," + this.form.latitude
+        };
+        get("https://restapi.amap.com/v3/geocode/regeo", parameters).then(
+          res => {
+            console.log(res);
+            if(typeof(res.regeocode.addressComponent.adcode)=='string'){
+                this.form.regionCode=res.regeocode.addressComponent.adcode;
+            }
+          
+          }
+        );
       }
     }
   }

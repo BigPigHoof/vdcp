@@ -36,7 +36,9 @@ import {
     MessageBox,
     Message,
     Popconfirm,
-    Transfer 
+    Transfer ,
+    InputNumber 
+
 
   } from 'element-ui';
   
@@ -71,6 +73,7 @@ import {
   Vue.use(Collapse);
   Vue.use(CollapseItem);
   Vue.use(Transfer);
+  Vue.use(InputNumber);
   Vue.use(Loading.directive);
   Vue.prototype.$loading = Loading.service;
   Vue.prototype.$confirm = MessageBox.confirm;

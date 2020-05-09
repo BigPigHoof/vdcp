@@ -74,12 +74,13 @@
     </div>
     <el-button v-if="$store.state.hasCompetence" style="margin-bottom:20px;" type="primary" size="small" @click="openForm('add')">新增</el-button>
     <el-table
-      :data="tableData"
+      :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
       v-loading="loading"
       element-loading-background="rgba(0, 0, 0, 0.5)"
-      style="width: 100%"
-      height="650"
+        style="width: 100%;margin-bottom:14px;"
+     max-height="600"
     >
+    <el-table-column type="index" label="序号" :index="indexMethod"></el-table-column>
       <el-table-column prop="mc" label="名称"></el-table-column>
       <el-table-column prop="bm" label="编码"></el-table-column>
       <el-table-column prop="cfdckmc" label="所在仓库"></el-table-column>
@@ -93,6 +94,12 @@
         </template>
       </el-table-column>
     </el-table>
+         <el-pagination
+      :current-page.sync="currentPage"
+      :page-size="pageSize"
+      layout="prev, pager, next, jumper"
+      :total="tableData.length">
+    </el-pagination>
     <el-dialog :title="formTitle" :visible.sync="showForm" width="50%">
       <el-form
         v-if="showForm"
@@ -101,13 +108,14 @@
         size="small"
         label-suffix="："
         ref="form"
+         :rules="rules"
       >
         <el-form-item
           label="名称"
           class="half"
           prop="mc"
           :label-width="formLabelWidth"
-          :rules="[{ required: true, message: '请填写名称' }]"
+          
         >
           <el-input v-model="form.mc" autocomplete="off"></el-input>
         </el-form-item>
@@ -116,7 +124,7 @@
           label="编码"
           prop="bm"
           :label-width="formLabelWidth"
-          :rules="[{ required: true, message: '请填写编码' }]"
+
         >
           <el-input v-model="form.bm" autocomplete="off"></el-input>
         </el-form-item>
@@ -124,7 +132,7 @@
           label="存放地仓库"
           prop="cfdckid"
           :label-width="formLabelWidth"
-          :rules="[{ required: true, message: '请选择存放地仓库' }]"
+ 
         >
           <el-select v-model="form.cfdckid" filterable clearable>
             <el-option
@@ -168,7 +176,7 @@
           label="责任单位"
           prop="zrdwid"
           :label-width="formLabelWidth"
-          :rules="[{ required: true, message: '请选择责任单位' }]"
+
         >
           <el-select value-key="id" v-model="form.zrdwid" filterable clearable>
             <el-option
@@ -190,9 +198,10 @@
           label="常备数量"
           prop="cbsl"
           :label-width="formLabelWidth"
-          :rules="[{ required: true, message: '请填写常备数量' }]"
+
         >
-          <el-input v-model="form.cbsl" autocomplete="off"></el-input>
+         <!-- <el-input-number :controls="false" v-model="form.cbsl" :min="0"></el-input-number> -->
+          <el-input v-model="form.cbsl" oninput="value=value.replace(/\D/g,'')" autocomplete="off"></el-input>
         </el-form-item>
 
         <el-form-item class="half" label="计量单位" prop="jldw" :label-width="formLabelWidth">
@@ -206,9 +215,9 @@
           label="可使用数量"
           prop="yxsl"
           :label-width="formLabelWidth"
-          :rules="[{ required: true, message: '请填写可使用数量' }]"
+
         >
-          <el-input v-model="form.yxsl" autocomplete="off"></el-input>
+          <el-input v-model="form.yxsl" oninput="value=value.replace(/\D/g,'')" autocomplete="off"></el-input>
         </el-form-item>
 
         <el-form-item class="half" label="储备形式" prop="cbxs" :label-width="formLabelWidth">
@@ -221,6 +230,7 @@
         <el-form-item label="备注" prop="bz" :label-width="formLabelWidth">
           <el-input type="textarea" :rows="4" v-model="form.bz"></el-input>
         </el-form-item>
+
         <el-form-item style="text-align:center;">
           <el-button type="primary" size="small" :loading="isSaving" @click="save">保存</el-button>
           <el-button type="primary" size="small" @click="showForm=false">关闭</el-button>
@@ -249,6 +259,32 @@ const doRes = (res, loading, message, callback) => {
 };
 export default {
   data() {
+    var validateNum = (rule, value, callback) => {
+      if (value !== ""&&value!==null ) {
+        if ( this.form.yxsl !== "" && this.form.yxsl!==null) {
+          this.$refs.form.validateField("yxsl");  
+          callback();
+        }
+        callback();
+      } else{
+        callback(new Error("常备数量不能为空!"));
+      }
+    };
+     var validateNum2 = (rule, value, callback) => {
+      if (value === ""||value===null) {
+        callback();
+      } else {
+        if ( this.form.cbsl !=="" && this.form.cbsl !==null) {
+          let num=parseInt(value);
+          let num2=parseInt(this.form.cbsl);
+          if(num>num2){
+             callback(new Error("可使用数量不能大于常备数量!"));
+          } 
+          callback();
+        }
+        callback();
+      }
+    };
     return {
       searchInfo: {
         mc: null,
@@ -266,7 +302,17 @@ export default {
       formTitle: "",
       form: {},
       formLabelWidth: "140px",
-      isSaving: false
+      isSaving: false,
+            currentPage:1,
+      pageSize:30,
+      rules:{
+        mc:[{ required: true, message: '请填写名称' }],
+        bm:[{ required: true, message: '请填写编码' }],
+        cfdckid:[{ required: true, message: '请选择存放地仓库' }],
+        zrdwid:[{ required: true, message: '请选择责任单位' }],
+        cbsl:[{ validator: validateNum, trigger: "blur", },{ required: true, message: '请填写常备数量' }],
+        yxsl:[{ validator: validateNum2, trigger: "blur", },{ required: true, message: '请填写可使用数量' }],    
+      }
     };
   },
 
@@ -284,6 +330,9 @@ export default {
     });
   },
   methods: {
+          indexMethod(index){
+      return (this.currentPage-1)*this.pageSize+index+1;
+    },
     getEmergencySupplies(params) {
       queryEmergencySupplies(params).then(res => {
         doRes(res, this.loading, this.$message, content => {
@@ -292,6 +341,7 @@ export default {
       });
     },
     search() {
+       this.currentPage=1;
       this.getEmergencySupplies(this.searchInfo);
     },
     regionChange(value) {
@@ -331,7 +381,8 @@ export default {
           jldw: null,
           yxsl: null,
           cbxs: null,
-          bz: null
+          bz: null,
+          
         };
         this.formTitle = "新增应急物资";
       } else {
@@ -344,8 +395,9 @@ export default {
     save() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          console.log(this.form);
+          this.isSaving=true;
           addOrUpdateEmergencySupplies(this.form).then(res => {
+            this.isSaving=false;
             if (res.ret == "ok") {
               this.$message.success("保存成功");
               this.getEmergencySupplies({});

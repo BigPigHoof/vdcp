@@ -6,15 +6,28 @@
     </div>
     <div class="main">
       <div class="side-bar">
-        <router-link to="CommandAgency"  class="command-agency" :class="{active:$route.name==='CommandAgency'}">
+        <router-link
+          to="CommandAgency"
+          class="command-agency"
+          :class="{active:$route.name==='CommandAgency'}"
+        >
           <div></div>
           <span>指挥机构</span>
         </router-link>
-        <router-link to="PersonnelManagement" class="personnel-management" :class="{active:$route.name==='PersonnelManagement'}">
+        <router-link
+          to="PersonnelManagement"
+          class="personnel-management"
+          :class="{active:$route.name==='PersonnelManagement'}"
+        >
           <div></div>
           <span>人员管理</span>
         </router-link>
-        <router-link to="AccountManagement"  class="change-password" :class="{active:$route.name==='AccountManagement'}">
+        <router-link
+          v-if="$store.state.hasCompetence"
+          to="AccountManagement"
+          class="change-password"
+          :class="{active:$route.name==='AccountManagement'}"
+        >
           <div></div>
           <span>账户管理</span>
         </router-link>
@@ -93,25 +106,26 @@ export default {
         & > div {
           @include bg("../../assets/img/系统维护/机构.png");
         }
-        &.active> div ,
-        &:hover> div  {
+        &.active > div,
+        &:hover > div {
           @include bg("../../assets/img/系统维护/机构_yellow.png");
         }
       }
       .personnel-management {
-           & > div {
-        @include bg("../../assets/img/系统维护/人员.png");}
+        & > div {
+          @include bg("../../assets/img/系统维护/人员.png");
+        }
         &.active > div,
-        &:hover> div {
+        &:hover > div {
           @include bg("../../assets/img/系统维护/人员_yellow.png");
         }
       }
       .change-password {
-         & > div {
-        @include bg("../../assets/img/系统维护/修改密码.png");
+        & > div {
+          @include bg("../../assets/img/系统维护/修改密码.png");
         }
-        &.active > div ,
-        &:hover > div  {
+        &.active > div,
+        &:hover > div {
           @include bg("../../assets/img/系统维护/修改密码_yellow.png");
         }
       }
@@ -122,35 +136,40 @@ export default {
       height: 850px;
       box-sizing: border-box;
       .search-bar {
-  label {
-    display: inline-block;
-    width: 140px;
-    text-align: right;
-  }
-  .el-input,
-  .el-cascader,
-  .el-autocomplete,
-  .el-select {
-    width: calc(100% - 140px);
-    .el-input{
-      width: 100%;
-    }
-  }
-}
-.function {
-  margin: 20px 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+        label {
+          display: inline-block;
+          width: 140px;
+          text-align: right;
+        }
+        .el-input,
+        .el-cascader,
+        .el-autocomplete,
+        .el-select {
+          width: calc(100% - 140px);
+          .el-input {
+            width: 100%;
+          }
+        }
+      }
+      .function {
+        margin: 20px 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
 
-  .el-checkbox {
-    color: white;
-  }
-  button {
-    margin-left: 20px;
-    min-width: 70px;
-  }
+        .el-checkbox {
+          color: white;
+        }
+        button {
+          margin-left: 20px;
+          min-width: 70px;
+        }
+      }
+      .option {
+  color: #30c7ff;
+  margin-right: 20px;
+  cursor: pointer;
 }
     }
   }
